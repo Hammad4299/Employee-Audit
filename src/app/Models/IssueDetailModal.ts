@@ -11,13 +11,6 @@ export const IssueDetailModal = initDatabase.define("issue_detail", {
     field: "issue-key",
     type: DataTypes.NUMBER,
   },
-  issueNumber: {
-    field: "issue-number",
-    type: DataTypes.NUMBER,
-  },
-  description: {
-    type: DataTypes.STRING,
-  },
 });
 
 export default IssueDetailModal;

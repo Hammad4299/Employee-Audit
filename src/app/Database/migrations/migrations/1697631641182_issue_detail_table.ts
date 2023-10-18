@@ -18,13 +18,6 @@ export const up = async ({ context }: MigrationParams<MigratorJobContext>) => {
           field: "issue-key",
           type: DataTypes.NUMBER,
         },
-        issueNumber: {
-          field: "issue-number",
-          type: DataTypes.NUMBER,
-        },
-        description: {
-          type: DataTypes.STRING,
-        },
       },
       { transaction }
     );
