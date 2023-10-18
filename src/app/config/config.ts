@@ -8,5 +8,8 @@ function getAbsolutePath(relativePath: string) {
 export const config = {
   database: databaseConfig,
   getAbsolutePath: getAbsolutePath,
+  toggl: {
+    apiToken: process.env.TOGGL_API_TOKEN,
+  },
 };
 export default config;

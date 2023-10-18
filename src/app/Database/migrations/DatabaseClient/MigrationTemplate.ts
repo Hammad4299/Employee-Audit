@@ -1,5 +1,5 @@
 import initDatabase from "@/app/Database/DB";
-import { MigratorJobContext } from "@/app/Database/migrations/UmzungClient/Types";
+import { MigratorJobContext } from "@/app/Database/migrations/DatabaseClient/Types";
 import { MigrationParams } from "umzug";
 
 // All migrations must provide a `up` and `down` async functions
