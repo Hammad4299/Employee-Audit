@@ -2,8 +2,6 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 // import config from "./src/app/config/config";
 
-const __dirname = "C:\\Teraception\\employee-audit";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -72,4 +70,4 @@ const nextConfig = {
     return config;
   },
 };
-export default nextConfig;
+module.exports = nextConfig;
