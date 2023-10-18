@@ -1,13 +1,12 @@
 import { initDatabase } from "../Database/DB";
 import { DataTypes } from "sequelize";
 
-export const Project = initDatabase.define("Project", {
+export const ProjectModal = initDatabase.define("project", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -23,4 +22,4 @@ export const Project = initDatabase.define("Project", {
   },
 });
 
-export default Project;
+export default ProjectModal;

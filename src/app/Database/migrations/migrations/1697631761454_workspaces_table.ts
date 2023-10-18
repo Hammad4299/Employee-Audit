@@ -1,5 +1,5 @@
 import initDatabase from "@/app/Database/DB";
-import { MigratorJobContext } from "@/app/Database/migrations/UmzungClient/Types";
+import { MigratorJobContext } from "@/app/Database/migrations/DatabaseClient/Types";
 import { DataTypes } from "sequelize";
 import { MigrationParams } from "umzug";
 
@@ -7,7 +7,7 @@ import { MigrationParams } from "umzug";
 
 export const up = async ({ context }: MigrationParams<MigratorJobContext>) => {
   await initDatabase.transaction(async (transaction) => {
-    await context.queryInterface?.createTable("organization", {
+    await context.queryInterface?.createTable("workspaces", {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -33,6 +33,6 @@ export const down = async ({
   context,
 }: MigrationParams<MigratorJobContext>) => {
   await initDatabase.transaction(async (transaction) => {
-    await context.queryInterface?.dropTable("TABLE_NAME");
+    await context.queryInterface?.dropTable("workspaces");
   });
 };
