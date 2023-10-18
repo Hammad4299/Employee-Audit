@@ -1,5 +1,7 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const nodeExternals = require("webpack-node-externals");
+
 // import config from "./src/app/config/config";
 
 /** @type {import('next').NextConfig} */
@@ -11,49 +13,12 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   webpack: (config, options) => {
-    //   const oldEntry = config.entry;
-    //   // return merge(config, {
-    //   //   entry() {
-    //   //     return config.entry().then((entry) => {
-    //   //       return Object.assign({}, oldEntry, {
-    //   //         migrator: "src/app/Database/migrations/DatabaseClient/index.ts",
-    //   //       });
-    //   //     });
-    //   //   },
-    //   // });
-    //   // config.entry = async () => {
-    //   // const entry = await oldEntry();
-    //   // console.log(`🚀 ~ config.entry= ~ entry:1`, entry);
-    //   // return {
-    //   //   ...(entry ?? {}),
-    //   //   ...(entry
-    //   //     ? {
-    //   //         migrator: path.resolve(
-    //   //           __dirname,
-    //   //           "src/app/Database/migrations/DatabaseClient/index.ts"
-    //   //         ),
-    //   //       }
-    //   //     : {}),
-    //   // };
-    //   // if (
-    //   //   entry["main.js"] &&
-    //   //   !entry["main.js"].includes(
-    //   //     path.resolve(
-    //   //       __dirname,
-    //   //       "src/app/Database/migrations/DatabaseClient/index.ts"
-    //   //     )
-    //   //   )
-    //   // ) {
-    //   //   entry["main.js"].unshift(
-    //   //     path.resolve(
-    //   //       __dirname,
-    //   //       "src/app/Database/migrations/DatabaseClient/index.ts"
-    //   //     )
-    //   //   );
-    //   // }
-    //   // console.log(`🚀 ~ config.entry= ~ entry:2`, entry);
-    //   // return entry;
-    //   // };
+    config.externals.push(
+      nodeExternals({
+        allowlist: ["sqlite3"],
+      })
+    );
+   
     config.plugins.push(
       new CopyWebpackPlugin({
         patterns: [

@@ -28,13 +28,16 @@
     "knex": "^3.0.1",
     "merge": "^2.1.1",
     "next": "13.5.4",
+    "pg-hstore": "^2.3.4",
     "react": "^18",
     "react-dom": "^18",
     "sequelize": "^6.33.0",
+    "sqlite": "^5.0.1",
     "sqlite3": "^5.1.6",
     "ts-node": "^10.9.1",
     "umzug": "^3.2.1",
-    "webpack-merge": "^5.10.0"
+    "webpack-merge": "^5.10.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
     "@types/db-migrate-base": "^0.0.11",
