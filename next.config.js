@@ -2,7 +2,7 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import path, { resolve } from "path";
 // import config from "./src/app/config/config";
 
-const __dirname = "C:\\Teraception\\employee-audit";
+const __dirname = "C:\\Ahmad Data\\teraception-projects\\employee-audit";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
