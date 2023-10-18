@@ -7,7 +7,7 @@ import { MigrationParams } from "umzug";
 export const up = async ({ context }: MigrationParams<MigratorJobContext>) => {
   await initDatabase.transaction(async (transaction) => {
     await context.queryInterface?.createTable(
-      "project",
+      "projects",
       {
         id: {
           type: DataTypes.INTEGER,
