@@ -1,5 +1,7 @@
+// import { QueryClientProviderNext } from "@/app/components/QueryClient";
+import { QueryClientProviderNext } from "@/app/components/QueryClient";
 import ThemeRegistry from "@/app/components/ThemeRegistry/ThemeRegistry";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
   title: "Employee Audit",
   description: "Employee Audit",
 };
-const queryClient = new QueryClient();
+
 export default function RootLayout({
   children,
 }: {
@@ -19,9 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
+          <QueryClientProviderNext>{children}</QueryClientProviderNext>
         </ThemeRegistry>
       </body>
     </html>

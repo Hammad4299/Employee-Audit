@@ -1,10 +1,8 @@
+"use client";
 import React, { useState } from "react";
 
 import CreatableSelect from "react-select/creatable";
-import {
-  useCreateIssueDetails,
-  useCreateProjects,
-} from "../Hooks/AuditHooks";
+import { useCreateIssueDetails, useCreateProjects } from "../Hooks/AuditHooks";
 import { IssueDetails, Projects } from "../audit/page";
 
 interface Option {

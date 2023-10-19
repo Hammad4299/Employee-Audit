@@ -2,8 +2,8 @@ import { Workspace } from "@/app/DomainModals";
 import { initDatabase } from "../Database/DB";
 import { DataTypes, Model } from "sequelize";
 
-interface WorkspaceModal extends Workspace, Model {}
-export const WorkspaceModal = initDatabase.define<WorkspaceModal>(
+interface WorkspaceModalType extends Workspace, Model<Workspace> {}
+export const WorkspaceModal = initDatabase.define<WorkspaceModalType>(
   "workspace",
   {
     id: {

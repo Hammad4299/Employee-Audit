@@ -4,9 +4,7 @@ import { axiosInstance } from "@/app/utilities/axios";
 
 export class AuditService {
   getWorkspaces() {
-    return axiosInstance
-      .post<Workspace[]>("api/workspaces")
-      .then((x) => x.data);
+    return axiosInstance.get<Workspace[]>("api/Workspace").then((x) => x.data);
   }
   getAuditData(filters?: AuditDataFilters) {
     return axiosInstance.post("endpoint", filters);

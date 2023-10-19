@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
@@ -37,8 +38,6 @@ export interface Projects {
   name: string;
 }
 
-
-
 export interface DateRange {
   startDate: string;
   endDate: string;
@@ -48,8 +47,6 @@ export interface AuditDataFilters {
   dateRange: DateRange;
   workspaces: number[];
 }
-
-
 
 const Page = () => {
   const classes = useStyles();

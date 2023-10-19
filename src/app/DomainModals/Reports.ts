@@ -5,9 +5,11 @@ export interface User {
 
 export interface TimeEntry {
   user: User;
-  project_id: number;
   description: string;
-  projectId: number;
+  project: string;
   timerange: string;
-  assignedIssue?: string;
+  assignedIssueId?: number;
+  //for tmp project
+  assignedIssueKey?: string;
+  assignedProjectId?: number;
 }
