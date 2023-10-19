@@ -1,5 +1,6 @@
 import { Workspace } from "@/app/DomainModals";
 import WorkspaceModal from "@/app/Models/WorkspaceModal";
+import { Op } from "sequelize";
 
 export async function getAllWorkspaces(): Promise<Workspace[]> {
   const row = await WorkspaceModal.findAll();
@@ -19,6 +20,17 @@ export async function createWorkspace(workspace: any) {
   });
   const resp = await row.save();
   return resp ? resp.toJSON() : null;
+}
+export async function createBulkWorkspaces(workspace: Workspace[]) {
+  const resp = await WorkspaceModal.bulkCreate(workspace, {
+    where: {
+      [Op.notIn]: {
+        toggleId: workspace.map((x) => +x.toggleId),
+      },
+    
+    },
+  });
+  return true;
 }
 export async function updateWorkspaceData(workspace: any, id: string) {
   const row = await WorkspaceModal.update(

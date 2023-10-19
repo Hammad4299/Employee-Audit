@@ -1,7 +1,7 @@
 export interface Workspace {
-  id: number;
+  id?: number;
   toggleId: number;
   owner: string;
-  billRate?: number;
+  billRate?: number | null;
 }
 export default Workspace;
