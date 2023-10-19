@@ -2,7 +2,7 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 
-// import config from "./src/app/config/config";
+const __dirname = "C:\\Ahmad Data\\teraception-projects\\employee-audit";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

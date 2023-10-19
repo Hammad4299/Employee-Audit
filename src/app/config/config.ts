@@ -12,4 +12,7 @@ export const config = {
     apiToken: process.env.TOGGL_API_TOKEN,
   },
 };
+
+export const baseUrl = `https://localhost:3000`
+
 export default config;
