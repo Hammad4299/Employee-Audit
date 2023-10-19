@@ -5,7 +5,7 @@ import Chip from "@mui/material/Chip";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { AuditDataFilters, Workspaces } from "../page";
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,10 +19,11 @@ const useStyles = makeStyles({
 
 interface AuditFiltersComponentProps {
   workspaces: Workspaces[];
+  refetchAuditData: (filters: AuditDataFilters)=> void;
 }
 
 const AuditFilters = (props: AuditFiltersComponentProps) => {
-  const { workspaces } = props;
+  const { workspaces, refetchAuditData } = props;
   const classes = useStyles();
 
   const [dateRangeStartingValue, setDateRangeStartingValue] =
@@ -36,9 +37,15 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
     workspaces: [],
   });
 
+  const isButtonDisabled = (
+    !auditFilterParams.dateRange.startDate ||
+    !auditFilterParams.dateRange.endDate ||
+    auditFilterParams.workspaces.length === 0
+  );
+
   return (
     <Grid container alignItems={"center"} justifyContent={"start"}>
-      <Grid item xs={3} margin={2}>
+      <Grid item style={{ width: "450px" }} margin={2}>
         <Autocomplete
           multiple
           id="tags-outlined"
@@ -60,7 +67,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
           )}
         />
       </Grid>
-      <Grid item xs={3} margin={2}>
+      <Grid item margin={2}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Start Date"
@@ -79,7 +86,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
           />
         </LocalizationProvider>
       </Grid>
-      <Grid item xs={3} margin={2}>
+      <Grid item margin={2}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="End Date"
@@ -97,6 +104,11 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
             renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
+      </Grid>
+      <Grid item>
+        <Button variant="contained" disabled={isButtonDisabled} onClick={()=> refetchAuditData(auditFilterParams)}>
+          Send
+        </Button>
       </Grid>
     </Grid>
   );
