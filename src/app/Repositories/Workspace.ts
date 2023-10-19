@@ -20,6 +20,14 @@ export async function createWorkspace(workspace: any) {
   const resp = await row.save();
   return resp ? resp.toJSON() : null;
 }
+export async function createBulkWorkspaces(workspace: Workspace[]) {
+  const resp = await WorkspaceModal.bulkCreate(workspace, {
+    where: {
+      toggleId: workspace.map((x) => x.toggleId),
+    },
+  });
+  return true;
+}
 export async function updateWorkspaceData(workspace: any, id: string) {
   const row = await WorkspaceModal.update(
     { ...workspace },

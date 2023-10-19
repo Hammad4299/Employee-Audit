@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
