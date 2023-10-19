@@ -8,14 +8,14 @@ export const GET = async (request: Request, context: { params: any }) => {
 };
 
 export const PUT = async (request: Request, context: { params: any }) => {
-  const project = request.json();
+  const project = await request.json();
   const id = context.params.id;
   const old = await projectRepo.getProjectById(id);
   if (old) {
     const resp = await projectRepo.updateProjectData({ ...project }, id);
     return resp ? NextResponse.json({ ...resp }) : null;
   } else {
-    const resp = await projectRepo.createUpdateProject({ ...project });
+    const resp = await projectRepo.createProject({ ...project });
     return resp ? NextResponse.json({ ...resp }) : null;
   }
 };

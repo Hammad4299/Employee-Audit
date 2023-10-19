@@ -20,16 +20,12 @@ export async function getProjectIssueById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
-export async function createUpdateProjectIssue(projectIssue: any) {
-  const [row, initialized] = await ProjectIssueModal.findOrBuild({
-    where: {
-      id: projectIssue.id,
-    },
-    defaults: {
-      ...projectIssue,
-    },
+export async function createProjectIssue(projectIssue: any) {
+  const row = await ProjectIssueModal.build({
+    ...projectIssue,
   });
-  return row ? row.toJSON() : null;
+  const resp = await row.save();
+  return resp ? resp.toJSON() : null;
 }
 export async function updateProjectIssueData(projectIssue: any, id: string) {
   const row = await ProjectIssueModal.update(

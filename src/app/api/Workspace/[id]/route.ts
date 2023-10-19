@@ -8,14 +8,14 @@ export const GET = async (request: Request, context: { params: any }) => {
 };
 
 export const PUT = async (request: Request, context: { params: any }) => {
-  const workspace = request.json();
+  const workspace = await request.json();
   const id = context.params.id;
   const old = await workspaceRepo.getWorkspaceById(id);
   if (old) {
     const resp = await workspaceRepo.updateWorkspaceData({ ...workspace }, id);
     return resp ? NextResponse.json({ ...resp }) : null;
   } else {
-    const resp = await workspaceRepo.createUpdateWorkspace({ ...workspace });
+    const resp = await workspaceRepo.createWorkspace({ ...workspace });
     return resp ? NextResponse.json({ ...resp }) : null;
   }
 };

@@ -11,16 +11,12 @@ export async function getProjectById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
-export async function createUpdateProject(project: any) {
-  const [row, initialized] = await ProjectModal.findOrBuild({
-    where: {
-      id: project.id,
-    },
-    defaults: {
-      ...project,
-    },
+export async function createProject(project: any) {
+  const row = await ProjectModal.build({
+    ...project,
   });
-  return row ? row.toJSON() : null;
+  const resp = await row.save();
+  return resp ? resp.toJSON() : null;
 }
 export async function updateProjectData(project: any, id: string) {
   const row = await ProjectModal.update(
