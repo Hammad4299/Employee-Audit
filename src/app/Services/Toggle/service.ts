@@ -72,10 +72,11 @@ export class ToggleService {
     return data.data;
   }
   public async getReports(workSpaceId: string, filters: ReportFilters) {
-    const data = await this.reportingInstance.post<Organization[]>(
-      `workspace/${workSpaceId}/search/time_entries`
+    const data = await this.reportingInstance.post(
+      `workspace/${workSpaceId}/search/time_entries`,
+      filters
     );
-    return data.data;
+    return data;
   }
 }
 export default ToggleService;

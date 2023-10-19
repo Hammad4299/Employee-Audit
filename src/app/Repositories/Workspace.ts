@@ -1,7 +1,7 @@
 import { Workspace } from "@/app/DomainModals";
 import WorkspaceModal from "@/app/Models/WorkspaceModal";
 
-export async function getAllWorkspaces(): Promise<Workspace> {
+export async function getAllWorkspaces(): Promise<Workspace[]> {
   const row = await WorkspaceModal.findAll();
   return row ? row.map((a: any) => a.toJSON()) : [];
 }

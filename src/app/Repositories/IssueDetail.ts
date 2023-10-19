@@ -1,6 +1,6 @@
 import { IssueDetail } from "@/app/DomainModals";
 import IssueDetailModal from "@/app/Models/IssueDetailModal";
-export async function getAllIssueDetails(): Promise<IssueDetail> {
+export async function getAllIssueDetails(): Promise<IssueDetail[]> {
   const row = await IssueDetailModal.findAll();
   return row ? row.map((a: any) => a.toJSON()) : [];
 }
