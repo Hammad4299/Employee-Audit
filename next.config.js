@@ -2,8 +2,6 @@ const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 
-const __dirname = "C:\\Ahmad Data\\teraception-projects\\employee-audit";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
