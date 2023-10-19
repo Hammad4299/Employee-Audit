@@ -15,10 +15,10 @@ const nextConfig = {
   webpack: (config, options) => {
     config.externals.push(
       nodeExternals({
-        allowlist: ["sqlite3"],
+        allowlist: ["sqlite3", "lodash-es"],
       })
     );
-   
+
     config.plugins.push(
       new CopyWebpackPlugin({
         patterns: [

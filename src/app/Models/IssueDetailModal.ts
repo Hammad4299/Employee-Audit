@@ -15,6 +15,10 @@ export const IssueDetailModal = initDatabase.define<IssueDetailModal>(
       field: "issue-key",
       type: DataTypes.STRING,
     },
+    description: {
+      field: "description",
+      type: DataTypes.STRING,
+    },
   },
   {
     timestamps: false,

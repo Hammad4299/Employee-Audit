@@ -1,6 +1,15 @@
 import ProjectIssueModal from "@/app/Models/ProjectIssueModal";
+import { ProjectModal } from "@/app/Models/ProjectModal";
 export async function getAllProjectIssues() {
-  const row = await ProjectIssueModal.findAll();
+  const row = await ProjectIssueModal.findAll({
+    include: [
+      {
+        model: ProjectModal,
+        as: "project",
+        required: true,
+      },
+    ],
+  });
   return row ? row.map((a) => a.toJSON()) : [];
 }
 export async function getProjectIssueById(id: string) {

@@ -1,6 +1,7 @@
 import { ProjectIssue } from "@/app/DomainModals";
 import { initDatabase } from "../Database/DB";
 import { DataTypes, Model } from "sequelize";
+import { ProjectModal } from "@/app/Models/ProjectModal";
 
 interface ProjectIssueModal extends ProjectIssue, Model {}
 export const ProjectIssueModal = initDatabase.define<ProjectIssueModal>(
@@ -24,5 +25,7 @@ export const ProjectIssueModal = initDatabase.define<ProjectIssueModal>(
     timestamps: false,
   }
 );
+
+ProjectIssueModal.belongsTo(ProjectModal, { foreignKey: "projectId" });
 
 export default ProjectIssueModal;
