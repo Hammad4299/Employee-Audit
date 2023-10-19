@@ -1,7 +1,13 @@
+import { Workspace } from "@/app/DomainModals";
 import { AuditDataFilters, IssueDetails, Projects } from "@/app/audit/page";
 import { axiosInstance } from "@/app/utilities/axios";
 
 export class AuditService {
+  getWorkspaces() {
+    return axiosInstance
+      .post<Workspace[]>("api/workspaces")
+      .then((x) => x.data);
+  }
   getAuditData(filters?: AuditDataFilters) {
     return axiosInstance.post("endpoint", filters);
   }

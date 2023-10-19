@@ -8,8 +8,15 @@ import {
   Projects,
 } from "../audit/page";
 import { AuditService as AuditServiceClass } from "../Services";
-
+import { useQuery } from "@tanstack/react-query";
 const serviceInstance = new AuditServiceClass();
+
+export const useWorkspaces = () => {
+  return useQuery({
+    queryKey: ["workspaces"],
+    queryFn: serviceInstance.getWorkspaces,
+  });
+};
 
 export const useAudit = (auditFilters?: AuditDataFilters) => {
   const [auditData, setAuditData] = useState<AuditData[]>([]);

@@ -9,27 +9,8 @@ const nextConfig = {
   },
   pageExtensions: ["ts", "tsx", "js", "jsx"],
   poweredByHeader: false,
-  reactStrictMode: true,
+  reactStrictMode: false,
   webpack: (config, options) => {
-    config.externals.push(
-      nodeExternals({
-        allowlist: ["sqlite3", "lodash-es"],
-      })
-    );
-
-    config.plugins.push(
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: path.resolve(
-              __dirname,
-              "src/app/Database/migrations/migrations"
-            ),
-            to: path.resolve(__dirname, ".next/migrations"),
-          },
-        ],
-      })
-    );
     return config;
   },
 };

@@ -4,8 +4,9 @@ import React from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
 import { Grid } from "@mui/material";
-import { useAudit } from "../Hooks/AuditHooks";
+import { useAudit, useWorkspaces } from "../Hooks/AuditHooks";
 import AuditTable from "./components/AuditTable";
+import { Workspace } from "@/app/DomainModals";
 
 const useStyles = makeStyles({
   root: {},
@@ -22,7 +23,7 @@ export interface AuditData {
   project: string;
   tags: string[];
   user?: string;
-  workspace?: Workspaces;
+  workspace?: Workspace;
   assignedProject: Projects;
   assignedIssueDetail: IssueDetails;
 }
@@ -38,10 +39,7 @@ export interface Projects {
   name: string;
 }
 
-export interface Workspaces {
-  id: number;
-  name: string;
-}
+
 
 export interface DateRange {
   startDate: string;
@@ -53,31 +51,19 @@ export interface AuditDataFilters {
   workspaces: number[];
 }
 
-const workspacesFromHook: Workspaces[] = [
-  {
-    id: 1,
-    name: "workspace1",
-  },
-  {
-    id: 2,
-    name: "workspace2",
-  },
-  {
-    id: 3,
-    name: "workspace3",
-  },
-];
+
 
 const Page = () => {
   const classes = useStyles();
 
+  const { data: workspaces } = useWorkspaces();
   const { auditData, refetch: refetchAuditData } = useAudit();
 
   return (
     <Grid className={classes.root} container margin={10} width={"90%"}>
       <Grid className={classes.filtersContainers} item xs={12}>
         <AuditFilters
-          workspaces={workspacesFromHook}
+          workspaces={workspaces || []}
           refetchAuditData={refetchAuditData}
         />
       </Grid>
