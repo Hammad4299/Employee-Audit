@@ -11,16 +11,12 @@ export async function getWorkspaceById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
-export async function createUpdateWorkspace(workspace: any) {
-  const [row, initialized] = await WorkspaceModal.findOrBuild({
-    where: {
-      id: workspace.id,
-    },
-    defaults: {
-      ...workspace,
-    },
+export async function createWorkspace(workspace: any) {
+  const row = await WorkspaceModal.build({
+    ...workspace,
   });
-  return row ? row.toJSON() : null;
+  const resp = await row.save();
+  return resp ? resp.toJSON() : null;
 }
 export async function updateWorkspaceData(workspace: any, id: string) {
   const row = await WorkspaceModal.update(

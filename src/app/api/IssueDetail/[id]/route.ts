@@ -8,7 +8,7 @@ export const GET = async (request: Request, context: { params: any }) => {
 };
 
 export const PUT = async (request: Request, context: { params: any }) => {
-  const issueDetail = request.json();
+  const issueDetail = await request.json();
   const id = context.params.id;
   const old = await issueDetailRepo.getIssueDetailById(id);
   if (old) {
@@ -18,7 +18,7 @@ export const PUT = async (request: Request, context: { params: any }) => {
     );
     return resp ? NextResponse.json({ ...resp }) : null;
   } else {
-    const resp = await issueDetailRepo.createUpdateIssueDetail({
+    const resp = await issueDetailRepo.createIssueDetail({
       ...issueDetail,
     });
     return resp ? NextResponse.json({ ...resp }) : null;

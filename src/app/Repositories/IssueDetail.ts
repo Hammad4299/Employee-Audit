@@ -11,16 +11,12 @@ export async function getIssueDetailById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
-export async function createUpdateIssueDetail(issueDetail: any) {
-  const [row, initialized] = await IssueDetailModal.findOrBuild({
-    where: {
-      id: issueDetail.id,
-    },
-    defaults: {
-      ...issueDetail,
-    },
+export async function createIssueDetail(issueDetail: any) {
+  const row = await IssueDetailModal.build({
+    ...issueDetail,
   });
-  return row ? row.toJSON() : null;
+  const resp = await row.save();
+  return resp ? resp.toJSON() : null;
 }
 export async function updateIssueDetailData(issueDetail: any, id: string) {
   const row = await IssueDetailModal.update(
