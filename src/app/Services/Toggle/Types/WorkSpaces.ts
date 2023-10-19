@@ -1,4 +1,4 @@
-import { UserRole } from "@/app/DomainModals/User";
+import { UserRole } from "@/app/Services/Toggle/Types";
 
 export interface WorkSpaces {
   id: number;

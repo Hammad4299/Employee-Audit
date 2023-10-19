@@ -1,7 +1,9 @@
+import { Workspace } from "@/app/DomainModals";
 import { initDatabase } from "../Database/DB";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-export const WorkspaceModal = initDatabase.define(
+interface WorkspaceModal extends Workspace, Model {}
+export const WorkspaceModal = initDatabase.define<WorkspaceModal>(
   "workspace",
   {
     id: {
@@ -15,7 +17,7 @@ export const WorkspaceModal = initDatabase.define(
     },
     owner: {
       field: "owner",
-      type: DataTypes.JSONB,
+      type: DataTypes.STRING,
     },
     billRate: {
       type: DataTypes.INTEGER,

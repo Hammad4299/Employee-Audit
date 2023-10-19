@@ -1,7 +1,9 @@
+import { ProjectIssue } from "@/app/DomainModals";
 import { initDatabase } from "../Database/DB";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-export const ProjectIssueModal = initDatabase.define(
+interface ProjectIssueModal extends ProjectIssue, Model {}
+export const ProjectIssueModal = initDatabase.define<ProjectIssueModal>(
   "project_issue",
   {
     id: {

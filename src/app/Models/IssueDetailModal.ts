@@ -1,7 +1,9 @@
+import { IssueDetail } from "@/app/DomainModals";
 import { initDatabase } from "../Database/DB";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-export const IssueDetailModal = initDatabase.define(
+interface IssueDetailModal extends IssueDetail, Model {}
+export const IssueDetailModal = initDatabase.define<IssueDetailModal>(
   "issue_detail",
   {
     id: {

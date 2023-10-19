@@ -1,6 +1,8 @@
-import { Organization, Project, WorkSpaces } from "@/app/DomainModals";
+import { Organization, Project, WorkSpaces } from "@/app/Services/Toggle/Types";
+import { ReportFilters } from "@/app/Services/Toggle/Types/Filters";
 import axios, { AxiosInstance } from "axios";
-export const axiosGlobal = (apiKey: string) =>
+
+export const axiosGlobalClient = (apiKey: string) =>
   axios.create({
     baseURL: "https://api.track.toggl.com/api/v9/",
     auth: {
@@ -8,12 +10,23 @@ export const axiosGlobal = (apiKey: string) =>
       password: "api_token",
     },
   });
-class ToggleService {
+export const axiosReportingClient = (apiKey: string) =>
+  axios.create({
+    baseURL: "https://api.track.toggl.com/reports/api/v3/",
+    auth: {
+      username: apiKey,
+      password: "api_token",
+    },
+  });
+export class ToggleService {
   private apiKey: string;
   private instance: AxiosInstance;
+  private reportingInstance: AxiosInstance;
   constructor(apiKey: string) {
+    console.log(`🚀 ~ ToggleService ~ constructor ~ apiKey:`, apiKey);
     this.apiKey = apiKey;
-    this.instance = axiosGlobal(this.apiKey);
+    this.instance = axiosGlobalClient(this.apiKey);
+    this.reportingInstance = axiosReportingClient(this.apiKey);
   }
   public async getAllWorkSpaces() {
     const data = await this.instance.get<WorkSpaces[]>("workspaces", {});
@@ -58,4 +71,11 @@ class ToggleService {
     );
     return data.data;
   }
+  public async getReports(workSpaceId: string, filters: ReportFilters) {
+    const data = await this.reportingInstance.post<Organization[]>(
+      `workspace/${workSpaceId}/search/time_entries`
+    );
+    return data.data;
+  }
 }
+export default ToggleService;
