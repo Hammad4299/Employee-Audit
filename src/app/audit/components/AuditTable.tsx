@@ -10,9 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { AuditData, IssueDetails, Projects } from "../page";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen } from "@fortawesome/pro-solid-svg-icons";
-import { Chip } from "@mui/material";
+import { Button, Chip } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { CreatableSelectComponent } from "@/app/components/CreatableSelect";
 import { useIssueDetails, useProjects } from "@/app/Hooks/AuditHooks";
@@ -111,15 +109,16 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 <TableCell align="left">{data.workspace?.name}</TableCell>
                 <TableCell align="left">
                   {data.assignedProject?.name}
-                  <FontAwesomeIcon
-                    icon={faPen}
-                    className={classes.cursorPointer}
+                  <Button
                     onClick={() => {
                       setProjectToEdit(data.assignedProject);
                       setIssueDetailsToEdit(null);
                       setShowEditDialog(true);
                     }}
-                  />
+                  >
+                    Edit
+                  </Button>
+
                   <CreatableSelectComponent
                     projects={projects}
                     forProjects={true}
@@ -128,15 +127,16 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 </TableCell>
                 <TableCell align="left">
                   {data.assignedIssueDetail?.name}
-                  <FontAwesomeIcon
-                    icon={faPen}
-                    className={classes.cursorPointer}
+                  <Button
                     onClick={() => {
                       setIssueDetailsToEdit(data.assignedIssueDetail);
                       setProjectToEdit(null);
                       setShowEditDialog(true);
                     }}
-                  />
+                  >
+                    Edit
+                  </Button>
+
                   <CreatableSelectComponent
                     issueDetails={issueDetails}
                     forProjects={false}

@@ -34,3 +34,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 DATABASE_URL='sqlite://path_to_your_database_file'
+*.sqlite
