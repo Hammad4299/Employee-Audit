@@ -18,7 +18,9 @@ export interface TimeEntry {
     stop: string;
     at: string;
   };
-  //for tmp project
   assignedIssueKey?: string;
-  assignedProjectId?: number;
+  assignedProject?: {
+    id: number;
+    name: string;
+  } | null;
 }
