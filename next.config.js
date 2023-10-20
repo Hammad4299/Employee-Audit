@@ -45,7 +45,7 @@ const nextConfig = {
     }
     console.log(
       "entry after",
-      // await config.entry(),
+
       options.isServer,
       options.nextRuntime
     );
