@@ -8,7 +8,7 @@ export class AuditService {
     return axiosInstance.get<Workspace[]>("api/Workspace").then((x) => x.data);
   }
   getAuditData(filters?: AuditDataFilters) {
-    return axiosInstance.get<TimeEntry[]>(`api/Reporting`, {
+    return axiosInstance.get<{ data: TimeEntry[] }>(`api/Reporting`, {
       params: {
         start_date: filters?.dateRange.startDate,
         end_date: filters?.dateRange.endDate,

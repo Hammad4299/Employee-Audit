@@ -12,7 +12,7 @@ export const IssueDetailModal = initDatabase.define<IssueDetailModalType>(
       autoIncrement: true,
     },
     issueKey: {
-      field: "issue-key",
+      field: "issue_key",
       type: DataTypes.STRING,
     },
     description: {

@@ -22,8 +22,8 @@ export const useAudit = (auditFilters?: AuditDataFilters) => {
     (filters?: AuditDataFilters): Promise<TimeEntry[]> => {
       console.log("asdsd", filters);
       return serviceInstance.getAuditData(filters).then((res) => {
-        setAuditData(res.data);
-        return res.data;
+        setAuditData(res.data.data);
+        return res.data.data;
       });
     },
     []

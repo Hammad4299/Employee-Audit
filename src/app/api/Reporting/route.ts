@@ -1,8 +1,7 @@
-import { ProjectIssue } from "@/app/DomainModals";
 import { TimeEntry } from "@/app/DomainModals/Reports";
 import stringSimilarity from "string-similarity";
 import { getAllProjects } from "@/app/Repositories/Project";
-import { getAllProjectIssues } from "@/app/Repositories/ProjectIssue";
+
 import { getWorkspaceByIds } from "@/app/Repositories/Workspace";
 import { ToggleService } from "@/app/Services/Toggle";
 import config from "@/app/config/config";
@@ -22,8 +21,7 @@ export const GET = async (request: NextRequest) => {
   const workspaces = await getWorkspaceByIds(workspaceIds);
 
   const projects = await getAllProjects();
-  const projectLinkedWithIssue: ProjectIssue[] = await getAllProjectIssues();
-  const issuesByProject = groupBy(projectLinkedWithIssue, (x) => x.projectId);
+
   let reportingEntries: Array<TimeEntry> = [];
   for (let workspace of workspaces) {
     const togglProjects = await toggleServiceInstance.getAllProject(
@@ -74,11 +72,7 @@ export const GET = async (request: NextRequest) => {
   const projectMatchCriteria = projects.flatMap((p) => {
     return {
       project: p,
-      terms: [
-        p.name,
-        ...((p.aliases as any) || []),
-        ...(issuesByProject[p.id.toString()]?.map((x) => x.issueKey) || []),
-      ],
+      terms: [p.name, ...((p.aliases as any) || [])],
     };
   });
   let terms: string[] = projectMatchCriteria.flatMap((x) => x.terms);
