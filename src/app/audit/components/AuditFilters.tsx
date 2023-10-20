@@ -31,7 +31,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
     React.useState<Dayjs | null>(null);
 
   const localStorageFilters = JSON.parse(
-    localStorage.getItem("auditFilters") as string
+    window.localStorage.getItem("auditFilters") as string
   ) as AuditDataFilters;
 
   const [auditFilterParams, setAuditFilterParams] = useState<AuditDataFilters>({
@@ -41,10 +41,6 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
     },
     workspaces: [],
   });
-  console.log(
-    "🚀 ~ file: AuditFilters.tsx:47 ~ AuditFilters ~ auditFilterParams:",
-    auditFilterParams
-  );
 
   useEffect(() => {
     if (localStorageFilters) {
@@ -143,7 +139,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
           variant="contained"
           disabled={isButtonDisabled}
           onClick={() => {
-            localStorage.setItem(
+            window.localStorage.setItem(
               "auditFilters",
               JSON.stringify(auditFilterParams)
             );

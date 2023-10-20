@@ -1,5 +1,5 @@
 export interface IssueDetail {
-  id: number;
+  id?: number;
   issueKey: string;
   description: string;
 }

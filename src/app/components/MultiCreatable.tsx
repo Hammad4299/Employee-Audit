@@ -19,6 +19,7 @@ const createOption = (label: string) => ({
 });
 
 interface CreatableMultiselectComponentProps {
+  options: Option[];
   onCreate: (newValue: readonly Option[]) => void;
 }
 
@@ -28,7 +29,9 @@ export const MultiCreatableComponent = (
   const { onCreate } = props;
 
   const [inputValue, setInputValue] = React.useState("");
-  const [value, setValue] = React.useState<readonly Option[]>([]);
+  const [value, setValue] = React.useState<readonly Option[]>(
+    props.options || []
+  );
 
   useEffect(() => {
     onCreate(value);

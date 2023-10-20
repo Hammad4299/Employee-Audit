@@ -20,7 +20,6 @@ export const useAudit = (auditFilters?: AuditDataFilters) => {
 
   const refetch = useCallback(
     (filters?: AuditDataFilters): Promise<TimeEntry[]> => {
-      console.log("asdsd", filters);
       return serviceInstance.getAuditData(filters).then((res) => {
         setAuditData(res.data.data);
         return res.data.data;

@@ -5,8 +5,12 @@ import { getAllProjects } from "@/app/Repositories/Project";
 import { getWorkspaceByIds } from "@/app/Repositories/Workspace";
 import { ToggleService } from "@/app/Services/Toggle";
 import config from "@/app/config/config";
-import { groupBy, keyBy, orderBy, range } from "lodash";
+import { groupBy, keyBy, orderBy, range, uniqBy } from "lodash";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  createIssueDetail,
+  getAllIssueDetails,
+} from "@/app/Repositories/IssueDetail";
 
 export const POST = async (request: NextRequest) => {};
 export const GET = async (request: NextRequest) => {
@@ -72,43 +76,34 @@ export const GET = async (request: NextRequest) => {
   const projectMatchCriteria = projects.flatMap((p) => {
     return {
       project: p,
-      terms: [p.name, ...((p.aliases as any) || [])],
+      terms: [p.name, ...((p.aliases as any) || [])].map((x) =>
+        x.toLowerCase()
+      ),
     };
   });
   let terms: string[] = projectMatchCriteria.flatMap((x) => x.terms);
 
   const regexes: RegExp[] = terms.map((x) => {
-    return new RegExp(`${x}[\\-\\s]{0,}\\d+`);
+    return new RegExp(`${x}[\\-\\s]{0,}\\d+`, "i");
   });
 
   // if the project in alias of project then linked issue key then extract no
   reportingEntries = reportingEntries.flatMap((data: TimeEntry) => {
     //check double entry
-    const multipleExpression = new RegExp("[A-Z]+[\\-\\s]\\d+");
+    const multipleExpression = new RegExp("[A-Z]+[\\-\\s]\\d+", "i");
     let fullDescription = (data?.description || "").toUpperCase();
     let issueMatches = [];
     let matchedIssue;
     while ((matchedIssue = multipleExpression.exec(fullDescription)) !== null) {
       fullDescription = fullDescription.replace(matchedIssue[0], "");
-      console.log(
-        `🚀 ~ reportingEntries=reportingEntries.flatMap ~ fullDescription:`,
-        fullDescription,
-        "issueMatch",
-        matchedIssue,
-        "fullDescription",
-        fullDescription
-      );
+
       issueMatches.push(matchedIssue[0]);
     }
-    console.log(
-      `🚀 ~ reportingEntries=reportingEntries.flatMap ~ issueMatches:`,
-      issueMatches
-    );
-    console.log(`🚀 ~ detectedIssueKeys ~ issueMatches: brfore `, issueMatches);
 
     let detectedIssueKeys = issueMatches.flatMap((x) => {
       const matchedIssueKeys = regexes.map((regex) => {
         let detectedKey = regex.exec(x)?.[0];
+
         if (!!!detectedKey) {
           return undefined;
         }
@@ -139,10 +134,6 @@ export const GET = async (request: NextRequest) => {
         );
     });
 
-    console.log(
-      `🚀 ~ reportingEntries=reportingEntries.flatMap ~ detectedIssueKeys:`,
-      detectedIssueKeys
-    );
     if (detectedIssueKeys.length == 0) {
       return [data];
     }
@@ -162,33 +153,59 @@ export const GET = async (request: NextRequest) => {
     return divideIssueEntries;
   });
 
+  let existingIssues = await getAllIssueDetails();
+  const toSeed = reportingEntries.filter(
+    (x) =>
+      x.assignedIssueKey &&
+      !existingIssues.find((y) => y.issueKey === x.assignedIssueKey)
+  );
+  const uniqToSeed = uniqBy(toSeed, (x) => x.assignedIssueKey);
+  for (const seed of uniqToSeed) {
+    await createIssueDetail({
+      description: seed.description,
+      issueKey: seed.assignedIssueKey,
+    });
+  }
+  existingIssues = await getAllIssueDetails();
+
   reportingEntries = reportingEntries.map((data) => {
+    data.assignedIssueId = existingIssues.find(
+      (x) => x.issueKey === data.assignedIssueKey
+    )
+      ? existingIssues.find((x) => x.issueKey === data.assignedIssueKey).id
+      : null;
     const scores = projectMatchCriteria.map((x) => {
       terms.push(...x.terms);
       return {
         project: x.project,
-        issueKeyMatch:
-          orderBy(
-            x.terms.map((term) =>
-              stringSimilarity.compareTwoStrings(
-                (data.assignedIssueKey || "").toLowerCase(),
-                term.toLowerCase()
-              )
-            ),
-            (x) => x,
-            "desc"
-          )[0] || 0,
-        projectMatchScore:
-          orderBy(
-            x.terms.map((term) =>
-              stringSimilarity.compareTwoStrings(
-                (data.project?.name || "").toLowerCase(),
-                term.toLowerCase()
-              )
-            ),
-            (x) => x,
-            "desc"
-          )[0] || 0,
+        issueKeyMatch: x.terms.find((term) =>
+          (data.assignedIssueKey || "").toLowerCase().includes(term)
+        )
+          ? 1
+          : orderBy(
+              x.terms.map((term) =>
+                stringSimilarity.compareTwoStrings(
+                  (data.assignedIssueKey || "").toLowerCase(),
+                  term
+                )
+              ),
+              (x) => x,
+              "desc"
+            )[0] || 0,
+        projectMatchScore: x.terms.find((term) =>
+          (data.project?.name || "").toLowerCase().includes(term)
+        )
+          ? 1
+          : orderBy(
+              x.terms.map((term) =>
+                stringSimilarity.compareTwoStrings(
+                  (data.project?.name || "").toLowerCase(),
+                  term
+                )
+              ),
+              (x) => x,
+              "desc"
+            )[0] || 0,
         descriptionMatchScore: x.terms.find((term) =>
           (data.description || "").toLowerCase().includes(term)
         )
@@ -197,7 +214,7 @@ export const GET = async (request: NextRequest) => {
               x.terms.map((term) =>
                 stringSimilarity.compareTwoStrings(
                   (data.description || "").toLowerCase(),
-                  term.toLowerCase()
+                  term
                 )
               ),
               (x) => x,
@@ -205,14 +222,20 @@ export const GET = async (request: NextRequest) => {
             )[0] || 0,
       };
     });
+
     const project = orderBy(
       scores,
       (x) =>
         Math.max(x.issueKeyMatch, x.projectMatchScore, x.descriptionMatchScore),
       "desc"
     );
+    const x = project && project[0];
     data.assignedProject =
-      project && project[0]
+      Math.max(
+        x?.issueKeyMatch,
+        x?.projectMatchScore,
+        x?.descriptionMatchScore
+      ) > 0.7
         ? {
             id: project[0].project.id,
             name: project[0].project.name,

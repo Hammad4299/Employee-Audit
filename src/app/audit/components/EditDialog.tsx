@@ -26,10 +26,14 @@ const EditDialog = (props: EditDialogProps) => {
   const { updateIssueDetails } = useUpdateIssueDetails();
   const { updateProjects } = useUpdateProjects();
 
-  const [projectData, setProjectData] = useState<Partial<Project>>({
-    name: projects?.name || "",
-    aliases: [],
-  });
+  const [projectData, setProjectData] = useState<Partial<Project>>(
+    projects
+      ? projects
+      : {
+          name: projects?.name || "",
+          aliases: [],
+        }
+  );
   const [issueData, setIssueData] = useState<Partial<IssueDetail>>({
     issueKey: issueDetails?.issueKey || "",
     description: issueDetails?.description || "",
@@ -67,6 +71,10 @@ const EditDialog = (props: EditDialogProps) => {
             }
           />
           <MultiCreatableComponent
+            options={projectData.aliases.map((x) => ({
+              label: x,
+              value: x,
+            }))}
             onCreate={(newValue) => {
               setProjectData({
                 ...projectData,

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
 import { Grid } from "@mui/material";
@@ -40,7 +40,11 @@ const Page = () => {
   const classes = useStyles();
 
   const { data: workspaces } = useWorkspaces();
-  const { auditData, refetch: refetchAuditData } = useAudit();
+  const { auditData: serverData, refetch: refetchAuditData } = useAudit();
+  const [auditData, setAuditData] = useState(serverData);
+  useEffect(() => {
+    setAuditData(serverData);
+  }, [serverData]);
 
   return (
     <Grid className={classes.root} container margin={10} width={"90%"}>
@@ -51,7 +55,7 @@ const Page = () => {
         />
       </Grid>
       <Grid item xs={12}>
-        <AuditTable auditData={auditData} />
+        <AuditTable auditData={auditData} onUpdate={setAuditData} />
       </Grid>
     </Grid>
   );

@@ -12,7 +12,7 @@ export async function getIssueDetailById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
-export async function createIssueDetail(issueDetail: any) {
+export async function createIssueDetail(issueDetail: IssueDetail) {
   const row = await IssueDetailModal.build({
     ...issueDetail,
   });

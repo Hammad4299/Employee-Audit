@@ -28,6 +28,7 @@ const useStyles = makeStyles({
 
 interface AuditTableComponentProps {
   auditData: TimeEntry[];
+  onUpdate: (data: TimeEntry[]) => void;
 }
 
 const AuditTable = (props: AuditTableComponentProps) => {
@@ -47,9 +48,9 @@ const AuditTable = (props: AuditTableComponentProps) => {
     "Start Date",
     "End Date",
     "Project",
-    "Tags",
+    // "Tags",
     "User",
-    "Workspace",
+    // "Workspace",
     "Assigned Project",
     "Assigned Issue",
   ];
@@ -81,68 +82,135 @@ const AuditTable = (props: AuditTableComponentProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {auditData.map((data, key) => (
-              <TableRow
-                key={key}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell align="left">{data.description}</TableCell>
-                <TableCell align="left">
-                  {data.timeEntry.seconds / 60}m
-                </TableCell>
-                <TableCell align="left">{data.timeEntry.start}</TableCell>
-                <TableCell align="left">{data.timeEntry.stop}</TableCell>
-                <TableCell align="left">{data.project.name}</TableCell>
-                <TableCell align="left">
-                  {data?.tagIds &&
-                    data?.tagIds.map((t, key) => {
-                      return (
-                        <Chip
-                          style={{ padding: "2px", margin: "3px" }}
-                          key={key}
-                          label={t}
-                        />
-                      );
-                    })}
-                </TableCell>
-                <TableCell align="left">{data?.user.username}</TableCell>
-                {/* <TableCell align="left">{data.workspace?.owner}</TableCell> */}
-                <TableCell align="left">
-                  {data.assignedProject?.name}
-                  <EditIcon
-                    className={classes.editIcon}
-                    onClick={() => {
-                      setProjectToEdit(data.assignedProject);
-                      setIssueDetailsToEdit(null);
-                      setShowEditDialog(true);
-                    }}
-                  />
+            {auditData.map((data, key) => {
+              const issueDetail = issueDetails.find(
+                (x) => x.id === data.assignedIssueId
+              );
 
-                  <CreatableSelectComponent
-                    projects={projects}
-                    forProjects={true}
-                    forIssueDetails={false}
-                  />
-                </TableCell>
-                <TableCell align="left">
-                  {data.assignedIssueDetail?.issueKey}
-                  <EditIcon
-                    className={classes.editIcon}
-                    onClick={() => {
-                      setIssueDetailsToEdit(data.assignedIssueDetail);
-                      setProjectToEdit(null);
-                      setShowEditDialog(true);
-                    }}
-                  />
+              return (
+                <TableRow
+                  key={key}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell align="left">{data.description}</TableCell>
+                  <TableCell align="left">
+                    {data.timeEntry.seconds / 60}m
+                  </TableCell>
+                  <TableCell align="left">{data.timeEntry.start}</TableCell>
+                  <TableCell align="left">{data.timeEntry.stop}</TableCell>
+                  <TableCell align="left">{data.project?.name}</TableCell>
+                  {/* <TableCell align="left">
+                    {data?.tagIds &&
+                      data?.tagIds.map((t, key) => {
+                        return (
+                          <Chip
+                            style={{ padding: "2px", margin: "3px" }}
+                            key={key}
+                            label={t}
+                          />
+                        );
+                      })}
+                  </TableCell> */}
+                  <TableCell align="left">{data.user?.username}</TableCell>
+                  {/* <TableCell align="left">{data.workspace?.owner}</TableCell> */}
+                  <TableCell align="left" style={{ width: 300 }}>
+                    {data.assignedProject && (
+                      <EditIcon
+                        className={classes.editIcon}
+                        onClick={() => {
+                          setProjectToEdit(
+                            projects.find(
+                              (x) => x.id === data.assignedProject.id
+                            )
+                          );
+                          setIssueDetailsToEdit(null);
+                          setShowEditDialog(true);
+                        }}
+                      />
+                    )}
 
-                  <CreatableSelectComponent
-                    issueDetails={issueDetails}
-                    forProjects={false}
-                    forIssueDetails={true}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+                    <CreatableSelectComponent
+                      options={projects.map((item) => ({
+                        label: item.name,
+                        value: item.id.toString(),
+                      }))}
+                      mode="project"
+                      onChange={(id) => {
+                        // if (!projects.find((x) => x.id === +id.value)) {
+                        refetchProjects();
+                        // }
+                        props.onUpdate(
+                          auditData.map((x) => {
+                            if (x === data) {
+                              return {
+                                ...x,
+                                assignedProject: {
+                                  id: +id.value,
+                                  name: id.label,
+                                },
+                              };
+                            }
+                            return x;
+                          })
+                        );
+                      }}
+                      value={
+                        data.assignedProject
+                          ? {
+                              label: data.assignedProject.name,
+                              value: data.assignedProject.id.toString(),
+                            }
+                          : null
+                      }
+                    />
+                  </TableCell>
+                  <TableCell align="left" style={{ width: 300 }}>
+                    {data.assignedIssueId && (
+                      <EditIcon
+                        className={classes.editIcon}
+                        onClick={() => {
+                          setIssueDetailsToEdit(issueDetail);
+                          setProjectToEdit(null);
+                          setShowEditDialog(true);
+                        }}
+                      />
+                    )}
+
+                    <CreatableSelectComponent
+                      options={issueDetails.map((item) => ({
+                        label: item.issueKey,
+                        value: item.id.toString(),
+                      }))}
+                      mode="issue"
+                      onChange={(id) => {
+                        // if (!issueDetails.find((x) => x.id === +id.value)) {
+                        refetchIssueDetails();
+                        // }
+                        props.onUpdate(
+                          auditData.map((x) => {
+                            if (x === data) {
+                              return {
+                                ...x,
+                                assignedIssueId: +id.value,
+                              };
+                            }
+                            return x;
+                          })
+                        );
+                      }}
+                      value={
+                        issueDetail
+                          ? {
+                              label: issueDetail.issueKey,
+                              value: data.assignedIssueId.toString(),
+                            }
+                          : null
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

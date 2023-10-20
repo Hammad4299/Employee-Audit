@@ -12,11 +12,7 @@ export interface TimeEntry {
   timerange: string;
   tagIds?: string[] | null;
   assignedIssueId?: number;
-  assignedIssueDetail?: {
-    id: number;
-    description: string;
-    issueKey: string;
-  } | null;
+
   timeEntry: {
     id: number;
     seconds: number;
