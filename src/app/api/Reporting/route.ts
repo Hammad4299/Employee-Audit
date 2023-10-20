@@ -1,26 +1,25 @@
 import { ProjectIssue } from "@/app/DomainModals";
 import { TimeEntry } from "@/app/DomainModals/Reports";
-import ProjectModal from "@/app/Models/ProjectModal";
 import stringSimilarity from "string-similarity";
 import { getAllProjects } from "@/app/Repositories/Project";
 import { getAllProjectIssues } from "@/app/Repositories/ProjectIssue";
-import { getAllWorkspaces } from "@/app/Repositories/Workspace";
+import { getWorkspaceByIds } from "@/app/Repositories/Workspace";
 import { ToggleService } from "@/app/Services/Toggle";
 import config from "@/app/config/config";
-import { group } from "console";
-import { groupBy, keyBy, orderBy } from "lodash";
-import moment from "moment";
+import { groupBy, keyBy, orderBy, range } from "lodash";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {};
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
   const startDate = searchParams.get("start_date") || "";
-  console.log(`🚀 ~ GET ~ startDate:`, startDate);
+
   const endDate = searchParams.get("end_date") || "";
-  const projectIds = searchParams.getAll("project_ids") || [];
+  const workspaceIds = searchParams.getAll("workspace_ids") || [];
+
   const toggleServiceInstance = new ToggleService(config.toggl.apiToken || "");
-  const workspaces = await getAllWorkspaces();
+  const workspaces = await getWorkspaceByIds(workspaceIds);
+
   const projects = await getAllProjects();
   const projectLinkedWithIssue: ProjectIssue[] = await getAllProjectIssues();
   const issuesByProject = groupBy(projectLinkedWithIssue, (x) => x.projectId);
@@ -49,10 +48,6 @@ export const GET = async (request: NextRequest) => {
       reportingEntries = [
         ...reportingEntries,
         ...reportChunk.data.map((x: any) => {
-          const timeEntry = moment.duration(
-            x.time_entries[0].seconds,
-            "seconds"
-          );
           return {
             user: {
               id: x.user_id,
@@ -61,10 +56,7 @@ export const GET = async (request: NextRequest) => {
             workspace: workspace.owner,
             project: togglProjectMap[x.project_id],
             description: x.description,
-            timerange: `${Math.floor(timeEntry.asHours())}h : ${
-              Math.floor(timeEntry.asMinutes()) -
-              Math.floor(timeEntry.asHours()) * 60
-            }min`,
+
             timeEntry: {
               ...x.time_entries[0],
             },
@@ -80,48 +72,98 @@ export const GET = async (request: NextRequest) => {
   const projectMatchCriteria = projects.flatMap((p) => {
     return {
       project: p,
-      terms: [p.name, ...(p.aliases || [])],
+      terms: [
+        p.name,
+        ...(JSON.parse(p.aliases as any) || []),
+        ...(issuesByProject[p.id.toString()]?.map((x) => x.issueKey) || []),
+      ],
     };
   });
   let terms: string[] = projectMatchCriteria.flatMap((x) => x.terms);
+
   const regexes: RegExp[] = terms.map((x) => {
-    return new RegExp(`${x}[\-\s]{0,}\d+`);
+    return new RegExp(`${x}[\\-\\s]{0,}\\d+`);
   });
 
   // if the project in alias of project then linked issue key then extract no
-  reportingEntries = reportingEntries.flatMap((data) => {
-    const detectedIssueKeys = regexes.flatMap((x) => {
-      x.exec(data?.description);
-      let detectedKey = "wmae -  - - - 12312";
-      detectedKey = detectedKey
-        .replace(/\-/g, "")
-        .replace(/\s/g, "")
-        .toUpperCase();
-      let normalizedKey = detectedKey;
-      for (const a = 0; a < detectedKey.length; ++a) {
-        if (
-          detectedKey.charCodeAt(a) >= 48 &&
-          detectedKey.charCodeAt(a) <= 57
-        ) {
-          normalizedKey = `${normalizedKey.substring(
-            0,
-            a
-          )}-${normalizedKey.substring(a)}`;
-          break;
+  reportingEntries = reportingEntries.flatMap((data: TimeEntry) => {
+    //check double entry
+    const multipleExpression = new RegExp("[A-Z]+[\\-\\s]\\d+");
+    let fullDescription = (data?.description || "").toUpperCase();
+    let issueMatches = [];
+    let matchedIssue;
+    while ((matchedIssue = multipleExpression.exec(fullDescription)) !== null) {
+      fullDescription = fullDescription.replace(matchedIssue[0], "");
+      console.log(
+        `🚀 ~ reportingEntries=reportingEntries.flatMap ~ fullDescription:`,
+        fullDescription,
+        "issueMatch",
+        matchedIssue,
+        "fullDescription",
+        fullDescription
+      );
+      issueMatches.push(matchedIssue[0]);
+    }
+    console.log(
+      `🚀 ~ reportingEntries=reportingEntries.flatMap ~ issueMatches:`,
+      issueMatches
+    );
+    console.log(`🚀 ~ detectedIssueKeys ~ issueMatches: brfore `, issueMatches);
+
+    let detectedIssueKeys = issueMatches.flatMap((x) => {
+      const matchedIssueKeys = regexes.map((regex) => {
+        let detectedKey = regex.exec(x)?.[0];
+        if (!!!detectedKey) {
+          return undefined;
         }
-      }
-      return [normalizedKey];
+        detectedKey = detectedKey
+          .replace(/\-/g, "")
+          .replace(/\s/g, "")
+          .toUpperCase();
+        let normalizedKey = detectedKey;
+        for (let a = 0; a < detectedKey.length; ++a) {
+          if (
+            detectedKey.charCodeAt(a) >= 48 &&
+            detectedKey.charCodeAt(a) <= 57
+          ) {
+            normalizedKey = `${normalizedKey.substring(
+              0,
+              a
+            )}-${normalizedKey.substring(a)}`;
+            break;
+          }
+        }
+        return normalizedKey;
+      });
+
+      return matchedIssueKeys
+        .filter((x) => !!x)
+        .map((issueKey: any) =>
+          issueKey && issueKey.length === 1 ? issueKey[0] : issueKey
+        );
     });
+
+    console.log(
+      `🚀 ~ reportingEntries=reportingEntries.flatMap ~ detectedIssueKeys:`,
+      detectedIssueKeys
+    );
     if (detectedIssueKeys.length == 0) {
       return [data];
     }
-    return detectedIssueKeys.map((issueKey) => {
-      //todo handle time division
-      return {
+
+    const timePerSlot = data.timeEntry.seconds / detectedIssueKeys.length;
+    let divideIssueEntries: TimeEntry[] = [];
+    range(0, issueMatches.length).flatMap((x) => {
+      divideIssueEntries.push({
         ...data,
-        assignedIssueKey: issueKey,
-      };
+        assignedIssueKey: detectedIssueKeys[x] || "",
+        timeEntry: {
+          ...data.timeEntry,
+          seconds: timePerSlot,
+        },
+      });
     });
+    return divideIssueEntries;
   });
 
   reportingEntries = reportingEntries.map((data) => {
@@ -144,7 +186,7 @@ export const GET = async (request: NextRequest) => {
           orderBy(
             x.terms.map((term) =>
               stringSimilarity.compareTwoStrings(
-                (data.project || "").toLowerCase(),
+                (data.project?.name || "").toLowerCase(),
                 term.toLowerCase()
               )
             ),

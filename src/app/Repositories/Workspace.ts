@@ -14,6 +14,16 @@ export async function getWorkspaceById(id: string) {
   });
   return row ? row.toJSON() : null;
 }
+export async function getWorkspaceByIds(ids: string[]) {
+  const row = await WorkspaceModal.findAll({
+    where: {
+      id: {
+        [Op.in]: ids.map((x) => +x),
+      },
+    },
+  });
+  return row ? row.map((a: any) => a.toJSON()) : [];
+}
 export async function createWorkspace(workspace: any) {
   const row = await WorkspaceModal.build({
     ...workspace,

@@ -7,10 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migration:up": "node -r dotenv/config .next/migrator.js up",
-    "migration:down": "node -r dotenv/config .next/migrator.js down",
+    "migration:up": "node -r dotenv/config .next/server/migrator.js up",
+    "migration:down": "node -r dotenv/config .next/server/migrator.js down",
     "migrationNodeDir": "node_modules/db-migrate/bin/db-migrate",
-    "migration:run": "node src/app/Database/migrations/DatabaseClient/index.ts",
     "migration:create": "node src/app/Database/migrations/DatabaseClient/CreateMigration.ts"
   },
   "dependencies": {
