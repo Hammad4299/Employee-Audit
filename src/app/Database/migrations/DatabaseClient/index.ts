@@ -1,5 +1,3 @@
-
-
 import moment from "moment-timezone";
 import { DataTypes } from "sequelize";
 import { Umzug } from "umzug";
@@ -12,7 +10,6 @@ import config from "@/app/config/config";
 import initDatabase from "@/app/Database/DB";
 import { MigratorJobContext } from "@/app/Database/migrations/DatabaseClient/Types";
 import newMigrations from "@/app/Database/migrations/DatabaseClient/Migrations";
-
 
 const MigrationModel = initDatabase.define<any>("SequelizeMeta", {
   name: {

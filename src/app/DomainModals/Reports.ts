@@ -10,6 +10,7 @@ export interface TimeEntry {
   description: string;
   project: Project;
   timerange: string;
+  tagIds?: string[] | null;
   assignedIssueId?: number;
   timeEntry: {
     id: number;
@@ -18,7 +19,9 @@ export interface TimeEntry {
     stop: string;
     at: string;
   };
-  //for tmp project
   assignedIssueKey?: string;
-  assignedProjectId?: number;
+  assignedProject?: {
+    id: number;
+    name: string;
+  } | null;
 }

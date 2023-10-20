@@ -53,6 +53,7 @@ export const GET = async (request: NextRequest) => {
               id: x.user_id,
               username: x.username,
             },
+            tagIds : x.tag_ids,
             workspace: workspace.owner,
             project: togglProjectMap[x.project_id],
             description: x.description,
@@ -215,8 +216,13 @@ export const GET = async (request: NextRequest) => {
         Math.max(x.issueKeyMatch, x.projectMatchScore, x.descriptionMatchScore),
       "desc"
     );
-    data.assignedProjectId =
-      project && project[0] ? (project[0].project.id as any) : null;
+    data.assignedProject =
+      project && project[0]
+        ? {
+            id: project[0].project.id,
+            name: project[0].project.name,
+          }
+        : null;
     return data;
   });
   return NextResponse.json({ data: reportingEntries }, { status: 200 });
