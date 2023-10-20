@@ -7,9 +7,9 @@ import moment from "moment";
 import config from "@/app/config/config";
 export const POST = async (request: NextRequest) => {
   //   const data = await request.json();
-  const data = [
+  const data: TimeEntry[] = [
     {
-      user: { id: 1, name: "John" },
+      user: { id: 1, username: "Saad" },
       description: "Description 1",
       project: "Project 1",
       timerange: "Time Range 1",
@@ -26,7 +26,7 @@ export const POST = async (request: NextRequest) => {
       assignedProject: { id: 1, name: "Project 1" },
     },
     {
-      user: { id: 1, name: "John" },
+      user: { id: 1, username: "Talha" },
       description: "Description 1",
       project: "Project 1",
       timerange: "Time Range 1",
@@ -43,7 +43,7 @@ export const POST = async (request: NextRequest) => {
       assignedProject: { id: 1, name: "Project 1" },
     },
     {
-      user: { id: 2, name: "Jane" },
+      user: { id: 2, username: "Raza" },
       description: "Description 2",
       project: "Project 2",
       timerange: "Time Range 2",
@@ -61,24 +61,30 @@ export const POST = async (request: NextRequest) => {
     },
   ];
 
-  const reportDataByProject = keyBy(data, (x) => {
-    x.assignedProject.name;
+  const reportDataByProject = keyBy(data, (x: TimeEntry) => {
+    return x?.assignedProject?.name;
   });
   const workbook = new ExcelJS.Workbook();
   let result = [];
+  let spentTime: { [key: string]: number } = {};
   Object.keys(reportDataByProject).map((x) => {
     const sheet = workbook.addWorksheet(x);
-    result = data.reduce((acc, curr) => {
+    result = data.reduce<string[][]>((acc, curr: TimeEntry) => {
       const index = acc.findIndex((el) => el[0] === curr.assignedIssueKey);
       if (index === -1) {
-        acc.push([curr.assignedIssueKey]);
-        acc[acc.length - 1].push(curr.user.name);
+        acc.push([curr?.assignedIssueKey] as string[]);
+        acc[acc.length - 1].push(curr.user?.username as string);
+        spentTime[curr.assignedIssueKey as string] = curr.timeEntry.seconds;
       } else {
-        acc[index][acc[index].length - 1] += curr.timeEntry.seconds;
-        acc[index].push(curr.user.name);
+        spentTime[curr.assignedIssueKey as string] += curr.timeEntry.seconds;
+        acc[index].push(curr.user.username);
       }
       return acc;
     }, []);
+    result = result.map((x) => {
+      x.push(spentTime[x[0]].toString()); // Add accumulated time to the row
+      return x;
+    });
     result.map((x) => {
       sheet.addRow(x);
     });
