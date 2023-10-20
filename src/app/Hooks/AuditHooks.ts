@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  AuditData,
-  AuditDataFilters,
-  IssueDetails,
-  Projects,
-} from "../audit/page";
+import { AuditDataFilters } from "../audit/page";
 import { AuditService as AuditServiceClass } from "../Services";
 import { useQuery } from "@tanstack/react-query";
+import { IssueDetail, Project } from "../DomainModals";
+import { TimeEntry } from "../DomainModals/Reports";
 const serviceInstance = new AuditServiceClass();
 
 export const useWorkspaces = () => {
@@ -19,13 +16,14 @@ export const useWorkspaces = () => {
 };
 
 export const useAudit = (auditFilters?: AuditDataFilters) => {
-  const [auditData, setAuditData] = useState<AuditData[]>([]);
+  const [auditData, setAuditData] = useState<TimeEntry[]>([]);
 
   const refetch = useCallback(
-    (filters?: AuditDataFilters): Promise<AuditData[]> => {
+    (filters?: AuditDataFilters): Promise<TimeEntry[]> => {
+      console.log("asdsd", filters);
       return serviceInstance.getAuditData(filters).then((res) => {
-        setAuditData(res);
-        return res;
+        setAuditData(res.data);
+        return res.data;
       });
     },
     []
@@ -44,9 +42,9 @@ export const useAudit = (auditFilters?: AuditDataFilters) => {
 };
 
 export const useProjects = () => {
-  const [projects, setProjects] = useState<Projects[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  const refetch = useCallback((): Promise<Projects[]> => {
+  const refetch = useCallback((): Promise<Project[]> => {
     return serviceInstance.getAllProject().then((res) => {
       setProjects(res.data);
       return res.data;
@@ -64,9 +62,9 @@ export const useProjects = () => {
 };
 
 export const useCreateProjects = () => {
-  const [projects, setProjects] = useState<Projects[]>([]);
-  const createProjects = (name: string): Promise<Projects[]> => {
-    return serviceInstance.createProject(name).then((res) => {
+  const [projects, setProjects] = useState<Project>();
+  const createProjects = (project: Partial<Project>): Promise<Project> => {
+    return serviceInstance.createProject(project).then((res) => {
       setProjects(res.data);
       return res.data;
     });
@@ -78,9 +76,9 @@ export const useCreateProjects = () => {
 };
 
 export const useUpdateProjects = () => {
-  const [projects, setProjects] = useState<Projects[]>([]);
-  const updateProjects = (body: Projects): Promise<Projects[]> => {
-    return serviceInstance.updateProject(body).then((res) => {
+  const [projects, setProjects] = useState<Project>();
+  const updateProjects = (project: Partial<Project>): Promise<Project> => {
+    return serviceInstance.updateProject(project).then((res) => {
       setProjects(res.data);
       return res.data;
     });
@@ -92,9 +90,9 @@ export const useUpdateProjects = () => {
 };
 
 export const useIssueDetails = () => {
-  const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
+  const [issueDetails, setIssueDetails] = useState<IssueDetail[]>([]);
 
-  const refetch = useCallback(():Promise<IssueDetails[]> => {
+  const refetch = useCallback((): Promise<IssueDetail[]> => {
     return serviceInstance.getAllIssueDetails().then((res) => {
       setIssueDetails(res.data);
       return res.data;
@@ -112,9 +110,11 @@ export const useIssueDetails = () => {
 };
 
 export const useCreateIssueDetails = () => {
-  const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
-  const createIssueDetails = (body: string): Promise<IssueDetails[]> => {
-    return serviceInstance.createIssueDetail(body).then((res) => {
+  const [issueDetails, setIssueDetails] = useState<IssueDetail>();
+  const createIssueDetails = (
+    issueDetails: Partial<IssueDetail>
+  ): Promise<IssueDetail> => {
+    return serviceInstance.createIssueDetail(issueDetails).then((res) => {
       setIssueDetails(res.data);
       return res.data;
     });
@@ -126,9 +126,11 @@ export const useCreateIssueDetails = () => {
 };
 
 export const useUpdateIssueDetails = () => {
-  const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
-  const updateIssueDetails = (body: IssueDetails): Promise<IssueDetails[]> => {
-    return serviceInstance.updateIssueDetail(body).then((res) => {
+  const [issueDetails, setIssueDetails] = useState<IssueDetail>();
+  const updateIssueDetails = (
+    issueDetail: IssueDetail
+  ): Promise<IssueDetail> => {
+    return serviceInstance.updateIssueDetail(issueDetail).then((res) => {
       setIssueDetails(res.data);
       return res.data;
     });

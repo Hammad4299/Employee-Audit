@@ -107,7 +107,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 ...auditFilterParams,
                 dateRange: {
                   ...auditFilterParams.dateRange,
-                  startDate: newValue!?.format("YYYY/MM/DD"),
+                  startDate: newValue!?.format("YYYY-MM-DD"),
                 },
               });
             }}
@@ -130,7 +130,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 ...auditFilterParams,
                 dateRange: {
                   ...auditFilterParams.dateRange,
-                  endDate: newValue!?.format("YYYY/MM/DD"),
+                  endDate: newValue!?.format("YYYY-MM-DD"),
                 },
               });
             }}

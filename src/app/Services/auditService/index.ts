@@ -1,10 +1,6 @@
-import { Workspace } from "@/app/DomainModals";
-import {
-  AuditData,
-  AuditDataFilters,
-  IssueDetails,
-  Projects,
-} from "@/app/audit/page";
+import { IssueDetail, Project, Workspace } from "@/app/DomainModals";
+import { TimeEntry } from "@/app/DomainModals/Reports";
+import { AuditDataFilters } from "@/app/audit/page";
 import { axiosInstance } from "@/app/utilities/axios";
 
 export class AuditService {
@@ -12,28 +8,33 @@ export class AuditService {
     return axiosInstance.get<Workspace[]>("api/Workspace").then((x) => x.data);
   }
   getAuditData(filters?: AuditDataFilters) {
-    return axiosInstance
-      .get<AuditData[]>(
-        `api/Reporting?start_date=${filters?.dateRange.startDate}&end_date=${filters?.dateRange.startDate}&workspace_ids=${filters?.workspaces}`
-      )
-      .then((x) => x.data);
+    return axiosInstance.get<TimeEntry[]>(`api/Reporting`, {
+      params: {
+        start_date: filters?.dateRange.startDate,
+        end_date: filters?.dateRange.endDate,
+        workspace_ids: [...filters?.workspaces, 3],
+      },
+    });
   }
   getAllProject() {
-    return axiosInstance.get("endpoint");
+    return axiosInstance.get<Project[]>("api/Project");
   }
   getAllIssueDetails() {
-    return axiosInstance.get("endpoint");
+    return axiosInstance.get<IssueDetail[]>("api/IssueDetail");
   }
-  createProject(name: string) {
-    return axiosInstance.post("endpoint", name);
+  createProject(project: Partial<Project>) {
+    return axiosInstance.post<Project>("api/Project", project);
   }
-  createIssueDetail(body: string) {
-    return axiosInstance.post("endpoint", body);
+  createIssueDetail(issueDetails: Partial<IssueDetail>) {
+    return axiosInstance.post<IssueDetail>("api/IssueDetail", issueDetails);
   }
-  updateProject(body: Projects) {
-    return axiosInstance.post("endpoint", body);
+  updateProject(project: Partial<Project>) {
+    return axiosInstance.put<Project>(`api/Project/${project.id}`, project);
   }
-  updateIssueDetail(body: IssueDetails) {
-    return axiosInstance.post("endpoint", body);
+  updateIssueDetail(issueDetail: IssueDetail) {
+    return axiosInstance.put<IssueDetail>(
+      `api/IssueDetail/${issueDetail.id}`,
+      issueDetail
+    );
   }
 }

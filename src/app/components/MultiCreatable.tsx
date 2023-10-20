@@ -1,6 +1,6 @@
 "use client";
 
-import React, { KeyboardEventHandler } from "react";
+import React, { KeyboardEventHandler, useEffect } from "react";
 
 import CreatableSelect from "react-select/creatable";
 
@@ -19,15 +19,20 @@ const createOption = (label: string) => ({
 });
 
 interface CreatableMultiselectComponentProps {
-  onCreate: (newValue: string) => void;
+  onCreate: (newValue: readonly Option[]) => void;
 }
 
-export const MultiCreatableComponent = (props: CreatableMultiselectComponentProps) => {
-
-    const {onCreate} = props;
+export const MultiCreatableComponent = (
+  props: CreatableMultiselectComponentProps
+) => {
+  const { onCreate } = props;
 
   const [inputValue, setInputValue] = React.useState("");
   const [value, setValue] = React.useState<readonly Option[]>([]);
+
+  useEffect(() => {
+    onCreate(value);
+  }, [value]);
 
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (!inputValue) return;
@@ -36,6 +41,7 @@ export const MultiCreatableComponent = (props: CreatableMultiselectComponentProp
       case "Tab":
         setValue((prev) => [...prev, createOption(inputValue)]);
         setInputValue("");
+        // onCreate(value);
         event.preventDefault();
     }
   };
@@ -47,9 +53,10 @@ export const MultiCreatableComponent = (props: CreatableMultiselectComponentProp
       isClearable
       isMulti
       menuIsOpen={false}
-      onChange={(newValue) => setValue(newValue)}
+      onChange={(newValue) => {
+        setValue(newValue);
+      }}
       onInputChange={(newValue) => {
-        onCreate(newValue)
         setInputValue(newValue);
       }}
       onKeyDown={handleKeyDown}

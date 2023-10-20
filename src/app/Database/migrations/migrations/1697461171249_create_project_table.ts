@@ -24,7 +24,7 @@ export const up = async ({ context }: MigrationParams<MigratorJobContext>) => {
           defaultValue: false,
         },
         aliases: {
-          type: DataTypes.JSONB,
+          type: DataTypes.JSON,
         },
       },
       { transaction }

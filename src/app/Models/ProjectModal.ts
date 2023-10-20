@@ -20,7 +20,7 @@ export const ProjectModal = initDatabase.define<ProjectModalType>(
       allowNull: false,
     },
     aliases: {
-      type: DataTypes.JSONB,
+      type: DataTypes.JSON,
       allowNull: true,
     },
   },

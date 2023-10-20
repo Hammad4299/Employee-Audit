@@ -10,14 +10,14 @@ import {
   useUpdateIssueDetails,
   useUpdateProjects,
 } from "@/app/Hooks/AuditHooks";
-import { IssueDetails, Projects } from "../page";
 import { MultiCreatableComponent } from "@/app/components/MultiCreatable";
+import { IssueDetail, Project } from "@/app/DomainModals";
 
 interface EditDialogProps {
   open: boolean;
   onClose: () => void;
-  projects?: Projects | null;
-  issueDetails?: IssueDetails | null;
+  projects?: Project | null;
+  issueDetails?: IssueDetail | null;
 }
 
 const EditDialog = (props: EditDialogProps) => {
@@ -26,29 +26,26 @@ const EditDialog = (props: EditDialogProps) => {
   const { updateIssueDetails } = useUpdateIssueDetails();
   const { updateProjects } = useUpdateProjects();
 
-  const [projectData, setProjectData] = useState<Projects>({
+  const [projectData, setProjectData] = useState<Partial<Project>>({
     name: projects?.name || "",
-    tags: [],
+    aliases: [],
   });
-  const [issueData, setIssueData] = useState<{
-    name: string;
-    description: string;
-  }>({
-    name: issueDetails?.name || "",
+  const [issueData, setIssueData] = useState<Partial<IssueDetail>>({
+    issueKey: issueDetails?.issueKey || "",
     description: issueDetails?.description || "",
   });
 
-  async function handleProjectUpdate(project: Projects) {
+  async function handleProjectUpdate(project: Partial<Project>) {
     console.log("inside updating project");
 
     let response = await updateProjects(project);
     onClose();
   }
 
-  async function handleIssueDetailsUpdate(issueDetails: IssueDetails) {
+  async function handleIssueDetailsUpdate(issueDetail: IssueDetail) {
     console.log("inside updating issue");
 
-    let response = await updateIssueDetails(issueDetails);
+    let response = await updateIssueDetails(issueDetail);
     onClose();
   }
 
@@ -70,12 +67,12 @@ const EditDialog = (props: EditDialogProps) => {
             }
           />
           <MultiCreatableComponent
-            onCreate={(newValue) =>
+            onCreate={(newValue) => {
               setProjectData({
                 ...projectData,
-                tags: [...projectData.tags!, newValue],
-              })
-            }
+                aliases: newValue.map((value) => value.value),
+              });
+            }}
           />
         </>
       );
@@ -90,9 +87,9 @@ const EditDialog = (props: EditDialogProps) => {
             label="Issue Name"
             type="text"
             fullWidth
-            value={issueData.name}
+            value={issueData.issueKey}
             onChange={(e) =>
-              setIssueData({ ...issueData, name: e.target.value })
+              setIssueData({ ...issueData, issueKey: e.target.value })
             }
           />
           <TextField
@@ -131,8 +128,16 @@ const EditDialog = (props: EditDialogProps) => {
         <Button
           onClick={() => {
             projects
-              ? handleProjectUpdate({ ...projects, name: projectData.name, tags: projectData.tags})
-              : handleIssueDetailsUpdate({ ...issueDetails, ...issueData });
+              ? handleProjectUpdate({
+                  ...projects,
+                  name: projectData.name!,
+                  aliases: projectData.aliases!,
+                })
+              : handleIssueDetailsUpdate({
+                  id: issueDetails?.id!,
+                  issueKey: issueData.issueKey!,
+                  description: issueData.description!,
+                });
           }}
         >
           Update

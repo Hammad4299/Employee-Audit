@@ -5,7 +5,6 @@ import { makeStyles } from "@mui/styles";
 import { Grid } from "@mui/material";
 import { useAudit, useWorkspaces } from "../Hooks/AuditHooks";
 import AuditTable from "./components/AuditTable";
-import { Workspace } from "@/app/DomainModals";
 
 const useStyles = makeStyles({
   root: {},
@@ -14,30 +13,18 @@ const useStyles = makeStyles({
   },
 });
 
-export interface AuditData {
-  description: string;
-  duration: string;
-  start: string;
-  end: string;
-  project: string;
-  tags: string[];
-  user?: string;
-  workspace?: Workspace;
-  assignedProject: Projects;
-  assignedIssueDetail: IssueDetails;
-}
-
-export interface IssueDetails {
-  id?: number;
-  name: string;
-  description?: string;
-}
-
-export interface Projects {
-  id?: number;
-  name: string;
-  tags?: string[];
-}
+// export interface AuditData {
+//   description: string;
+//   duration: string;
+//   start: string;
+//   end: string;
+//   project: string;
+//   tags: string[];
+//   user?: string;
+//   workspace?: Workspace;
+//   assignedProject: Project;
+//   assignedIssueDetail: IssueDetail;
+// }
 
 export interface DateRange {
   startDate: string;

@@ -15,7 +15,8 @@ export const GET = async (request: NextRequest) => {
   const startDate = searchParams.get("start_date") || "";
 
   const endDate = searchParams.get("end_date") || "";
-  const workspaceIds = searchParams.getAll("workspace_ids") || [];
+  const workspaceIds = searchParams.getAll("workspace_ids[]") || [];
+  console.log("workspaceIds", workspaceIds, searchParams);
 
   const toggleServiceInstance = new ToggleService(config.toggl.apiToken || "");
   const workspaces = await getWorkspaceByIds(workspaceIds);
@@ -53,7 +54,7 @@ export const GET = async (request: NextRequest) => {
               id: x.user_id,
               username: x.username,
             },
-            tagIds : x.tag_ids,
+            tagIds: x.tag_ids,
             workspace: workspace.owner,
             project: togglProjectMap[x.project_id],
             description: x.description,
@@ -75,7 +76,7 @@ export const GET = async (request: NextRequest) => {
       project: p,
       terms: [
         p.name,
-        ...(JSON.parse(p.aliases as any) || []),
+        ...((p.aliases as any) || []),
         ...(issuesByProject[p.id.toString()]?.map((x) => x.issueKey) || []),
       ],
     };

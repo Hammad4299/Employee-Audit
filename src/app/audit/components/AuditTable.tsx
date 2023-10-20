@@ -8,13 +8,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { AuditData, IssueDetails, Projects } from "../page";
 import { Button, Chip, Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { CreatableSelectComponent } from "@/app/components/CreatableSelect";
 import { useIssueDetails, useProjects } from "@/app/Hooks/AuditHooks";
 import EditDialog from "./EditDialog";
 import EditIcon from "@mui/icons-material/Edit";
+import { IssueDetail, Project } from "@/app/DomainModals";
+import { TimeEntry } from "@/app/DomainModals/Reports";
 
 const useStyles = makeStyles({
   root: {},
@@ -26,19 +27,19 @@ const useStyles = makeStyles({
 });
 
 interface AuditTableComponentProps {
-  auditData: AuditData[];
+  auditData: TimeEntry[];
 }
 
 const AuditTable = (props: AuditTableComponentProps) => {
   const classes = useStyles();
-  //   const { auditData } = props;
+  const { auditData } = props;
   const { issueDetails, refetch: refetchIssueDetails } = useIssueDetails();
   const { projects, refetch: refetchProjects } = useProjects();
 
   const [showEditDialog, setShowEditDialog] = useState<boolean>(false);
-  const [projectToEdit, setProjectToEdit] = useState<Projects | null>(null);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [issueDetailsToEdit, setIssueDetailsToEdit] =
-    useState<IssueDetails | null>(null);
+    useState<IssueDetail | null>(null);
 
   const headCells: string[] = [
     "Description",
@@ -51,21 +52,6 @@ const AuditTable = (props: AuditTableComponentProps) => {
     "Workspace",
     "Assigned Project",
     "Assigned Issue",
-  ];
-
-  const auditData: AuditData[] = [
-    {
-      description: "description",
-      duration: "10 minutes",
-      start: "date",
-      end: "date",
-      assignedIssueDetail: { id: 2, name: "assIssue" },
-      assignedProject: { id: 2, name: "assProject" },
-      project: "project",
-      tags: ["tag1", "tag2"],
-      user: "ahmad",
-      workspace: { id: 2, owner: "workspace", toggleId: 1 },
-    },
   ];
 
   return (
@@ -101,13 +87,15 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell align="left">{data.description}</TableCell>
-                <TableCell align="left">{data.duration}</TableCell>
-                <TableCell align="left">{data.start}</TableCell>
-                <TableCell align="left">{data.end}</TableCell>
-                <TableCell align="left">{data.project}</TableCell>
                 <TableCell align="left">
-                  {data?.tags &&
-                    data?.tags.map((t, key) => {
+                  {data.timeEntry.seconds / 60}m
+                </TableCell>
+                <TableCell align="left">{data.timeEntry.start}</TableCell>
+                <TableCell align="left">{data.timeEntry.stop}</TableCell>
+                <TableCell align="left">{data.project.name}</TableCell>
+                <TableCell align="left">
+                  {data?.tagIds &&
+                    data?.tagIds.map((t, key) => {
                       return (
                         <Chip
                           style={{ padding: "2px", margin: "3px" }}
@@ -117,8 +105,8 @@ const AuditTable = (props: AuditTableComponentProps) => {
                       );
                     })}
                 </TableCell>
-                <TableCell align="left">{data?.user}</TableCell>
-                <TableCell align="left">{data.workspace?.owner}</TableCell>
+                <TableCell align="left">{data?.user.username}</TableCell>
+                {/* <TableCell align="left">{data.workspace?.owner}</TableCell> */}
                 <TableCell align="left">
                   {data.assignedProject?.name}
                   <EditIcon
@@ -137,7 +125,7 @@ const AuditTable = (props: AuditTableComponentProps) => {
                   />
                 </TableCell>
                 <TableCell align="left">
-                  {data.assignedIssueDetail?.name}
+                  {data.assignedIssueDetail?.issueKey}
                   <EditIcon
                     className={classes.editIcon}
                     onClick={() => {
