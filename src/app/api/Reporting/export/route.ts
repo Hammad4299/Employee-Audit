@@ -7,6 +7,7 @@ import moment from "moment";
 import config from "@/app/config/config";
 import { mkdirSync } from "fs";
 import path from "path";
+import { getAllIssueDetails } from "@/app/Repositories/IssueDetail";
 export const POST = async (request: NextRequest) => {
   const data: TimeEntry[] = await request.json();
   // const data: TimeEntry[] = [
@@ -66,12 +67,22 @@ export const POST = async (request: NextRequest) => {
   const reportDataByProject = groupBy(data, (x: TimeEntry) => {
     return x?.assignedProject?.name;
   });
+  const issue = await getAllIssueDetails();
+  const issueMap = keyBy(issue, (x) => x.id);
   const workbook = new ExcelJS.Workbook();
 
   Object.keys(reportDataByProject).map((x) => {
     const projectData = reportDataByProject[x];
     const projectUserData = groupBy(projectData, (x) => x.user.username);
-    const issueKeys = uniq(projectData.map((x) => x.assignedIssueKey));
+    const issueKeys = uniq(
+      projectData.map((x) => {
+        x.assignedIssueKey = x.assignedIssueId
+          ? issueMap[x.assignedIssueId].issueKey
+          : "";
+        return x.assignedIssueKey;
+      })
+    );
+    console.log(`🚀 ~ Object.keys ~ issueKeys:`, issueKeys);
     const users = Object.keys(projectUserData);
     let personSums: number[] = [...users.map((x) => 0)];
     let result: string[][] = [["Issue", ...users, "Total"]];
