@@ -10,6 +10,7 @@ export interface TimeEntry {
   description: string;
   project: Project;
   timerange: string;
+  tagIds?: string[] | null;
   assignedIssueId?: number;
   timeEntry: {
     id: number;

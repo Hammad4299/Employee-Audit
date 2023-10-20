@@ -53,7 +53,7 @@ export const GET = async (request: NextRequest) => {
               id: x.user_id,
               username: x.username,
             },
-            tags : x.tag_ids,
+            tagIds : x.tag_ids,
             workspace: workspace.owner,
             project: togglProjectMap[x.project_id],
             description: x.description,
