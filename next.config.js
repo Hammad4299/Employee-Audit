@@ -13,18 +13,39 @@ const nextConfig = {
   reactStrictMode: false,
   webpack: (config, options) => {
     console.log(
-      "herersad",
-      config.externals,
-      options.isServer,
-      options.nextRuntime
+      "entry"
+      // await config.entry(),
+      // options.isServer,
+      // options.nextRuntime
     );
     if (options.nextRuntime === "nodejs") {
+      const oldEntry = config.entry;
+      config.entry = () =>
+        new Promise(async (resolve) => {
+          resolve({
+            ...(await oldEntry()),
+            migrator: "src/app/Database/migrations/DatabaseClient/index.ts",
+          });
+        });
       config.externals.push("sqlite3");
       config.externals.push("sequelize");
+      config.plugins.push(
+        new CopyWebpackPlugin({
+          patterns: [
+            {
+              from: path.resolve(
+                __dirname,
+                "./src/app/Database/migrations/migrations"
+              ),
+              to: path.resolve(__dirname, ".next/server/migrations"),
+            },
+          ],
+        })
+      );
     }
     console.log(
-      "here after",
-      config.externals,
+      "entry after",
+      // await config.entry(),
       options.isServer,
       options.nextRuntime
     );
