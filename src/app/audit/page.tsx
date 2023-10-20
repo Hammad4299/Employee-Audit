@@ -34,8 +34,9 @@ export interface IssueDetails {
 }
 
 export interface Projects {
-  id: number;
+  id?: number;
   name: string;
+  tags?: string[];
 }
 
 export interface DateRange {

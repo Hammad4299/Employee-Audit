@@ -9,18 +9,19 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { AuditData, IssueDetails, Projects } from "../page";
-
-import { Button, Chip } from "@mui/material";
+import { Button, Chip, Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { CreatableSelectComponent } from "@/app/components/CreatableSelect";
 import { useIssueDetails, useProjects } from "@/app/Hooks/AuditHooks";
 import EditDialog from "./EditDialog";
+import EditIcon from "@mui/icons-material/Edit";
 
 const useStyles = makeStyles({
   root: {},
-  cursorPointer: {
+  editIcon: {
     cursor: "pointer",
     paddingLeft: "10px",
+    width: "30px",
   },
 });
 
@@ -63,15 +64,26 @@ const AuditTable = (props: AuditTableComponentProps) => {
       project: "project",
       tags: ["tag1", "tag2"],
       user: "ahmad",
-      workspace: { id: 2, name: "workspace" },
+      workspace: { id: 2, owner: "workspace", toggleId: 1 },
     },
   ];
 
   return (
     <React.Fragment>
+      <Grid container justifyContent={"end"} marginBottom={5}>
+        <Button
+          variant="contained"
+          disabled={auditData ? false : true}
+          onClick={() => {
+            alert("ok boss");
+          }}
+        >
+          Generate Excel
+        </Button>
+      </Grid>
       <TableContainer component={Paper}>
         <Table
-          sx={{ minWidth: 650 }}
+          sx={{ minWidth: 650, minHeight: 200 }}
           style={{ overflowX: "auto" }}
           aria-label="simple table"
         >
@@ -106,18 +118,17 @@ const AuditTable = (props: AuditTableComponentProps) => {
                     })}
                 </TableCell>
                 <TableCell align="left">{data?.user}</TableCell>
-                <TableCell align="left">{data.workspace?.name}</TableCell>
+                <TableCell align="left">{data.workspace?.owner}</TableCell>
                 <TableCell align="left">
                   {data.assignedProject?.name}
-                  <Button
+                  <EditIcon
+                    className={classes.editIcon}
                     onClick={() => {
                       setProjectToEdit(data.assignedProject);
                       setIssueDetailsToEdit(null);
                       setShowEditDialog(true);
                     }}
-                  >
-                    Edit
-                  </Button>
+                  />
 
                   <CreatableSelectComponent
                     projects={projects}
@@ -127,15 +138,14 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 </TableCell>
                 <TableCell align="left">
                   {data.assignedIssueDetail?.name}
-                  <Button
+                  <EditIcon
+                    className={classes.editIcon}
                     onClick={() => {
                       setIssueDetailsToEdit(data.assignedIssueDetail);
                       setProjectToEdit(null);
                       setShowEditDialog(true);
                     }}
-                  >
-                    Edit
-                  </Button>
+                  />
 
                   <CreatableSelectComponent
                     issueDetails={issueDetails}

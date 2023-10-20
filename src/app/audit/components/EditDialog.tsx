@@ -11,6 +11,7 @@ import {
   useUpdateProjects,
 } from "@/app/Hooks/AuditHooks";
 import { IssueDetails, Projects } from "../page";
+import { MultiCreatableComponent } from "@/app/components/MultiCreatable";
 
 interface EditDialogProps {
   open: boolean;
@@ -25,7 +26,10 @@ const EditDialog = (props: EditDialogProps) => {
   const { updateIssueDetails } = useUpdateIssueDetails();
   const { updateProjects } = useUpdateProjects();
 
-  const [projectData, setProjectData] = useState<string>(projects?.name || "");
+  const [projectData, setProjectData] = useState<Projects>({
+    name: projects?.name || "",
+    tags: [],
+  });
   const [issueData, setIssueData] = useState<{
     name: string;
     description: string;
@@ -51,46 +55,57 @@ const EditDialog = (props: EditDialogProps) => {
   const formData = () => {
     if (projects) {
       return (
-        <TextField
-          autoFocus
-          margin="dense"
-          id="name"
-          label="Project Name"
-          type="text"
-          fullWidth
-          variant="standard"
-          value={projectData}
-          onChange={(e) => setProjectData(e.target.value)}
-        />
+        <>
+          <TextField
+            style={{ marginBottom: "40px" }}
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Project Name"
+            type="text"
+            fullWidth
+            value={projectData.name}
+            onChange={(e) =>
+              setProjectData({ ...projectData, name: e.target.value })
+            }
+          />
+          <MultiCreatableComponent
+            onCreate={(newValue) =>
+              setProjectData({
+                ...projectData,
+                tags: [...projectData.tags!, newValue],
+              })
+            }
+          />
+        </>
       );
     } else if (issueDetails) {
       return (
         <>
           <TextField
-            style={{ margin: "10px" }}
+            style={{ marginBottom: "40px" }}
             autoFocus
             margin="dense"
             id="name"
             label="Issue Name"
             type="text"
-            variant="standard"
+            fullWidth
             value={issueData.name}
             onChange={(e) =>
               setIssueData({ ...issueData, name: e.target.value })
             }
           />
           <TextField
-            style={{ margin: "10px" }}
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Issue Description"
-            type="text"
-            variant="standard"
+            multiline
+            label="Description"
+            placeholder="Description"
             value={issueData.description}
+            fullWidth
             onChange={(e) =>
               setIssueData({ ...issueData, description: e.target.value })
             }
+            autoFocus
+            minRows={2}
           />
         </>
       );
@@ -116,7 +131,7 @@ const EditDialog = (props: EditDialogProps) => {
         <Button
           onClick={() => {
             projects
-              ? handleProjectUpdate({ ...projects, name: projectData })
+              ? handleProjectUpdate({ ...projects, name: projectData.name, tags: projectData.tags})
               : handleIssueDetailsUpdate({ ...issueDetails, ...issueData });
           }}
         >

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
@@ -30,6 +30,10 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
   const [dateRangeStartingValue, setDateRangeStartingValue] =
     React.useState<Dayjs | null>(null);
 
+  const localStorageFilters = JSON.parse(
+    localStorage.getItem("auditFilters") as string
+  ) as AuditDataFilters;
+
   const [auditFilterParams, setAuditFilterParams] = useState<AuditDataFilters>({
     dateRange: {
       startDate: "",
@@ -37,6 +41,24 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
     },
     workspaces: [],
   });
+  console.log(
+    "🚀 ~ file: AuditFilters.tsx:47 ~ AuditFilters ~ auditFilterParams:",
+    auditFilterParams
+  );
+
+  useEffect(() => {
+    if (localStorageFilters) {
+      setAuditFilterParams({
+        ...auditFilterParams,
+        dateRange: {
+          ...auditFilterParams.dateRange,
+          startDate: localStorageFilters.dateRange.startDate,
+          endDate: localStorageFilters.dateRange.endDate,
+        },
+        workspaces: localStorageFilters.workspaces,
+      });
+    }
+  }, []);
 
   const isButtonDisabled =
     !auditFilterParams.dateRange.startDate ||
@@ -55,9 +77,12 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
           onChange={(e, values) => {
             setAuditFilterParams({
               ...auditFilterParams,
-              workspaces: values.map((workspace) => workspace.id),
+              workspaces: values.map((workspace) => workspace.id!),
             });
           }}
+          value={workspaces.filter((workspace) =>
+            auditFilterParams.workspaces.includes(workspace.id!)
+          )}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -71,7 +96,11 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Start Date"
-            defaultValue={dateRangeStartingValue}
+            value={
+              auditFilterParams.dateRange.startDate
+                ? dayjs(auditFilterParams.dateRange.startDate)
+                : null
+            }
             onChange={(newValue) => {
               setDateRangeStartingValue(newValue);
               setAuditFilterParams({
@@ -90,7 +119,11 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="End Date"
-            defaultValue={dateRangeStartingValue}
+            value={
+              auditFilterParams.dateRange.endDate
+                ? dayjs(auditFilterParams.dateRange.endDate)
+                : null
+            }
             onChange={(newValue) => {
               setDateRangeStartingValue(newValue);
               setAuditFilterParams({
@@ -109,9 +142,15 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
         <Button
           variant="contained"
           disabled={isButtonDisabled}
-          onClick={() => refetchAuditData(auditFilterParams)}
+          onClick={() => {
+            localStorage.setItem(
+              "auditFilters",
+              JSON.stringify(auditFilterParams)
+            );
+            refetchAuditData(auditFilterParams);
+          }}
         >
-          Send
+          Refetch Audit Data
         </Button>
       </Grid>
     </Grid>

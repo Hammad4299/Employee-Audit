@@ -21,12 +21,15 @@ export const useWorkspaces = () => {
 export const useAudit = (auditFilters?: AuditDataFilters) => {
   const [auditData, setAuditData] = useState<AuditData[]>([]);
 
-  const refetch = useCallback((filters?: AuditDataFilters) => {
-    return serviceInstance.getAuditData(filters).then((res) => {
-      setAuditData(res.data);
-      return res.data;
-    });
-  }, []);
+  const refetch = useCallback(
+    (filters?: AuditDataFilters): Promise<AuditData[]> => {
+      return serviceInstance.getAuditData(filters).then((res) => {
+        setAuditData(res);
+        return res;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (auditFilters) {
@@ -43,7 +46,7 @@ export const useAudit = (auditFilters?: AuditDataFilters) => {
 export const useProjects = () => {
   const [projects, setProjects] = useState<Projects[]>([]);
 
-  const refetch = useCallback(() => {
+  const refetch = useCallback((): Promise<Projects[]> => {
     return serviceInstance.getAllProject().then((res) => {
       setProjects(res.data);
       return res.data;
@@ -62,7 +65,7 @@ export const useProjects = () => {
 
 export const useCreateProjects = () => {
   const [projects, setProjects] = useState<Projects[]>([]);
-  const createProjects = (name: string): Promise<Projects> => {
+  const createProjects = (name: string): Promise<Projects[]> => {
     return serviceInstance.createProject(name).then((res) => {
       setProjects(res.data);
       return res.data;
@@ -76,7 +79,7 @@ export const useCreateProjects = () => {
 
 export const useUpdateProjects = () => {
   const [projects, setProjects] = useState<Projects[]>([]);
-  const updateProjects = (body: Projects): Promise<Projects> => {
+  const updateProjects = (body: Projects): Promise<Projects[]> => {
     return serviceInstance.updateProject(body).then((res) => {
       setProjects(res.data);
       return res.data;
@@ -91,7 +94,7 @@ export const useUpdateProjects = () => {
 export const useIssueDetails = () => {
   const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
 
-  const refetch = useCallback(() => {
+  const refetch = useCallback(():Promise<IssueDetails[]> => {
     return serviceInstance.getAllIssueDetails().then((res) => {
       setIssueDetails(res.data);
       return res.data;
@@ -110,7 +113,7 @@ export const useIssueDetails = () => {
 
 export const useCreateIssueDetails = () => {
   const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
-  const createIssueDetails = (body: string): Promise<IssueDetails> => {
+  const createIssueDetails = (body: string): Promise<IssueDetails[]> => {
     return serviceInstance.createIssueDetail(body).then((res) => {
       setIssueDetails(res.data);
       return res.data;
@@ -124,7 +127,7 @@ export const useCreateIssueDetails = () => {
 
 export const useUpdateIssueDetails = () => {
   const [issueDetails, setIssueDetails] = useState<IssueDetails[]>([]);
-  const updateIssueDetails = (body: IssueDetails): Promise<IssueDetails> => {
+  const updateIssueDetails = (body: IssueDetails): Promise<IssueDetails[]> => {
     return serviceInstance.updateIssueDetail(body).then((res) => {
       setIssueDetails(res.data);
       return res.data;
