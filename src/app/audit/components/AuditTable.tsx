@@ -16,6 +16,7 @@ import EditDialog from "./EditDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import { IssueDetail, Project } from "@/app/DomainModals";
 import { TimeEntry } from "@/app/DomainModals/Reports";
+import { AuditService } from "@/app/Services";
 
 const useStyles = makeStyles({
   root: {},
@@ -62,7 +63,13 @@ const AuditTable = (props: AuditTableComponentProps) => {
           variant="contained"
           disabled={auditData ? false : true}
           onClick={() => {
-            alert("ok boss");
+            const service = new AuditService();
+            service
+              .generalAuditData(auditData)
+              .catch((err) => alert("error"))
+              .then((x) =>
+                alert("A file directory should have opened with excel file")
+              );
           }}
         >
           Generate Excel
@@ -94,7 +101,7 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 >
                   <TableCell align="left">{data.description}</TableCell>
                   <TableCell align="left">
-                    {data.timeEntry.seconds / 60}m
+                    {(data.timeEntry.seconds / (60 * 60)).toFixed(2)} hours
                   </TableCell>
                   <TableCell align="left">{data.timeEntry.start}</TableCell>
                   <TableCell align="left">{data.timeEntry.stop}</TableCell>

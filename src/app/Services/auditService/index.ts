@@ -12,9 +12,12 @@ export class AuditService {
       params: {
         start_date: filters?.dateRange.startDate,
         end_date: filters?.dateRange.endDate,
-        workspace_ids: [...filters?.workspaces, 3],
+        workspace_ids: [...filters?.workspaces],
       },
     });
+  }
+  generalAuditData(entries: TimeEntry[]) {
+    return axiosInstance.post(`api/Reporting/export`, JSON.stringify(entries));
   }
   getAllProject() {
     return axiosInstance.get<Project[]>("api/Project");

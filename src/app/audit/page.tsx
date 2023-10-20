@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
-import { Grid } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import { useAudit, useWorkspaces } from "../Hooks/AuditHooks";
 import AuditTable from "./components/AuditTable";
 
@@ -40,7 +40,11 @@ const Page = () => {
   const classes = useStyles();
 
   const { data: workspaces } = useWorkspaces();
-  const { auditData: serverData, refetch: refetchAuditData } = useAudit();
+  const {
+    auditData: serverData,
+    loading,
+    refetch: refetchAuditData,
+  } = useAudit();
   const [auditData, setAuditData] = useState(serverData);
   useEffect(() => {
     setAuditData(serverData);
@@ -54,6 +58,15 @@ const Page = () => {
           refetchAuditData={refetchAuditData}
         />
       </Grid>
+      {loading && (
+        <CircularProgress
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+          }}
+        />
+      )}
       <Grid item xs={12}>
         <AuditTable auditData={auditData} onUpdate={setAuditData} />
       </Grid>

@@ -17,13 +17,22 @@ export const useWorkspaces = () => {
 
 export const useAudit = (auditFilters?: AuditDataFilters) => {
   const [auditData, setAuditData] = useState<TimeEntry[]>([]);
+  const [loading, setloading] = useState(false);
 
   const refetch = useCallback(
     (filters?: AuditDataFilters): Promise<TimeEntry[]> => {
-      return serviceInstance.getAuditData(filters).then((res) => {
-        setAuditData(res.data.data);
-        return res.data.data;
-      });
+      setloading(true);
+      return serviceInstance
+        .getAuditData(filters)
+        .then((res) => {
+          setAuditData(res.data.data);
+          return res.data.data;
+        })
+        .catch((e) => {
+          alert("errror");
+          return null;
+        })
+        .finally(() => setloading(false));
     },
     []
   );
@@ -35,6 +44,7 @@ export const useAudit = (auditFilters?: AuditDataFilters) => {
   }, [auditFilters]);
 
   return {
+    loading,
     refetch,
     auditData,
   };

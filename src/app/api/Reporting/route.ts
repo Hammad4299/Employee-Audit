@@ -84,13 +84,14 @@ export const GET = async (request: NextRequest) => {
   let terms: string[] = projectMatchCriteria.flatMap((x) => x.terms);
 
   const regexes: RegExp[] = terms.map((x) => {
-    return new RegExp(`${x}[\\-\\s]{0,}\\d+`, "i");
+    return new RegExp(`${x}[\\-\\s\\:]{0,}\\d+`, "i");
   });
 
   // if the project in alias of project then linked issue key then extract no
   reportingEntries = reportingEntries.flatMap((data: TimeEntry) => {
     //check double entry
-    const multipleExpression = new RegExp("[A-Z]+[\\-\\s]\\d+", "i");
+    const multipleExpression = new RegExp("[A-Z]+[\\-\\s\\:]\\d+", "i");
+    // let fullDescription = "fix: [ud:3976] and fix: [ud:3975]".toUpperCase();
     let fullDescription = (data?.description || "").toUpperCase();
     let issueMatches = [];
     let matchedIssue;
@@ -110,7 +111,9 @@ export const GET = async (request: NextRequest) => {
         detectedKey = detectedKey
           .replace(/\-/g, "")
           .replace(/\s/g, "")
+          .replace(/\:/g, "")
           .toUpperCase();
+        console.log(`🚀 ~ matchedIssueKeys ~ detectedKey:`, detectedKey);
         let normalizedKey = detectedKey;
         for (let a = 0; a < detectedKey.length; ++a) {
           if (
