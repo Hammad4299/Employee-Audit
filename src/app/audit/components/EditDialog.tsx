@@ -58,7 +58,7 @@ const EditDialog = (props: EditDialogProps) => {
       return (
         <>
           <TextField
-            style={{ marginBottom: "40px" }}
+            style={{ marginBottom: "20px" }}
             autoFocus
             margin="dense"
             id="name"
@@ -88,7 +88,7 @@ const EditDialog = (props: EditDialogProps) => {
       return (
         <>
           <TextField
-            style={{ marginBottom: "40px" }}
+            style={{ marginBottom: "20px" }}
             autoFocus
             margin="dense"
             id="name"

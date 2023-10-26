@@ -1,30 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AuditFilters from "./components/AuditFilters";
 import { makeStyles } from "@mui/styles";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAudit, useWorkspaces } from "../Hooks/AuditHooks";
 import AuditTable from "./components/AuditTable";
+import AuditDataFilters from "./components/AuditDataFilters";
 
 const useStyles = makeStyles({
   root: {},
   filtersContainers: {
-    marginBottom: "30px",
   },
 });
-
-// export interface AuditData {
-//   description: string;
-//   duration: string;
-//   start: string;
-//   end: string;
-//   project: string;
-//   tags: string[];
-//   user?: string;
-//   workspace?: Workspace;
-//   assignedProject: Project;
-//   assignedIssueDetail: IssueDetail;
-// }
 
 export interface DateRange {
   startDate: string;
@@ -51,24 +38,26 @@ const Page = () => {
   }, [serverData]);
 
   return (
-    <Grid className={classes.root} container margin={10} width={"90%"}>
-      <Grid className={classes.filtersContainers} item xs={12}>
-        <AuditFilters
-          workspaces={workspaces || []}
-          refetchAuditData={refetchAuditData}
-        />
-      </Grid>
-      {loading && (
-        <CircularProgress
-          style={{
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      )}
-      <Grid item xs={12}>
-        <AuditTable auditData={auditData} onUpdate={setAuditData} />
+    <Grid container justifyContent={"center"}>
+      <Grid className={classes.root} container margin={5} width={"90%"}>
+        <Grid className={classes.filtersContainers} item xs={12}>
+          <AuditFilters
+            workspaces={workspaces || []}
+            refetchAuditData={refetchAuditData}
+          />
+        </Grid>
+        {loading && (
+          <CircularProgress
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+            }}
+          />
+        )}
+        <Grid item xs={12}>
+          <AuditTable auditData={auditData} onUpdateAuditData={setAuditData} />
+        </Grid>
       </Grid>
     </Grid>
   );
