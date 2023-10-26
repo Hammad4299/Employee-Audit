@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { AuditDataFilters } from "../page";
 import { Button, Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
@@ -13,6 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import type { Workspace } from "@/app/DomainModals";
+import { AuditDataFilters } from "@/app/audit/page";
 
 const useStyles = makeStyles({
   root: {},

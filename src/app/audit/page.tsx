@@ -5,7 +5,6 @@ import { makeStyles } from "@mui/styles";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAudit, useWorkspaces } from "../Hooks/AuditHooks";
 import AuditTable from "./components/AuditTable";
-import AuditDataFilters from "./components/AuditDataFilters";
 
 const useStyles = makeStyles({
   root: {},

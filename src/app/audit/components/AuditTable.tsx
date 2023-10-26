@@ -25,7 +25,7 @@ import {
   GridToolbar,
 } from "@mui/x-data-grid";
 import AuditBulkEditFields from "./AuditBulkEditFields";
-import AuditDataFilters from "./AuditDataFilters";
+import AuditDataFilters, { LocalFilters } from "./AuditDataFilters";
 
 const useStyles = makeStyles({
   root: {},
@@ -77,7 +77,10 @@ const AuditTable = (props: AuditTableComponentProps) => {
   const { updateProjects } = useUpdateProjects();
   const { updateIssueDetails } = useUpdateIssueDetails();
   const { createIssueDetails } = useCreateIssueDetails();
-  const [appliedFiltersData, setAppliedFiltersData] = useState<TimeEntry[]>([]);
+  const [filters, setFilters] = useState<LocalFilters>({
+    projects: [],
+    username: [],
+  });
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const headCells: GridColDef[] = [
     {
@@ -136,23 +139,21 @@ const AuditTable = (props: AuditTableComponentProps) => {
     },
   ];
 
-  const getAuditDataOnTableMaping = (auditData: TimeEntry[]) => {
-    return auditData?.map((data) => {
-      return {
-        id: String(data?.timeEntry?.seconds + data?.timeEntry?.start),
-        description: data?.description,
-        duration: (data?.timeEntry.seconds / 3600).toFixed(2),
-        startDate: data?.timeEntry.start,
-        endDate: data?.timeEntry.stop,
-        project: data?.project ? data?.project.name : null,
-        user: data?.user ? data?.user.username : null,
-        assignedProject: data?.assignedProject
-          ? data?.assignedProject.name
-          : null,
-        assignedIssue:
-          data?.assignedIssueKey === undefined ? null : data?.assignedIssueKey,
-      };
-    });
+  const getAuditDataOnTableMaping = (data: TimeEntry) => {
+    return {
+      id: String(data?.timeEntry?.seconds + data?.timeEntry?.start),
+      description: data?.description,
+      duration: (data?.timeEntry.seconds / 3600).toFixed(2),
+      startDate: data?.timeEntry.start,
+      endDate: data?.timeEntry.stop,
+      project: data?.project ? data?.project.name : null,
+      user: data?.user ? data?.user.username : null,
+      assignedProject: data?.assignedProject
+        ? data?.assignedProject.name
+        : null,
+      assignedIssue:
+        data?.assignedIssueKey === undefined ? null : data?.assignedIssueKey,
+    };
   };
 
   const getTableDataOnAuditDataMapping = (
@@ -187,13 +188,18 @@ const AuditTable = (props: AuditTableComponentProps) => {
     });
   };
 
-  let rows = useMemo(() => {
-    if (appliedFiltersData.length) {
-      return getAuditDataOnTableMaping(appliedFiltersData);
-    } else {
-      return getAuditDataOnTableMaping(auditData);
-    }
-  }, [auditData, appliedFiltersData]);
+  const rows = useMemo(() => {
+    return auditData
+      .filter(
+        (d) =>
+          (!filters.username.length ||
+            filters.username.includes(d.user.username)) &&
+          (!filters.projects.length ||
+            (filters.projects[0] === null && !d.assignedProject) ||
+            filters.projects.includes(d.assignedProject?.id?.toString()))
+      )
+      .map(getAuditDataOnTableMaping);
+  }, [auditData, filters]);
 
   const tableCellEditHandler = async (
     changedCellValue: string,
@@ -363,10 +369,8 @@ const AuditTable = (props: AuditTableComponentProps) => {
         <Grid item xs={7}>
           <AuditDataFilters
             auditData={auditData || []}
-            onAuditDataUpdate={(auditData) => {
-              console.log("filteredData", auditData);
-              setAppliedFiltersData(auditData);
-            }}
+            filters={filters}
+            onFiltersChange={setFilters}
           />
         </Grid>
         <Grid item xs={2}>

@@ -1,55 +1,48 @@
 "use client";
 import { TimeEntry } from "@/app/DomainModals/Reports";
-import {
-  Autocomplete,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Switch,
-  TextField,
-} from "@mui/material";
-import { uniq } from "lodash";
-import React, { useEffect, useState } from "react";
+import { Autocomplete, Grid, TextField } from "@mui/material";
+import { uniq, uniqBy } from "lodash";
+import { useMemo } from "react";
+
+export interface LocalFilters {
+  username: string[];
+  projects: string[];
+}
 
 interface AuditDataFiltersComponentProps {
-  onAuditDataUpdate: (auditData: TimeEntry[]) => void;
+  onFiltersChange: (filters: LocalFilters) => void;
   auditData: TimeEntry[];
+  filters: LocalFilters;
 }
 
 const AuditDataFilters = (props: AuditDataFiltersComponentProps) => {
-  const { auditData, onAuditDataUpdate } = props;
+  const { auditData, onFiltersChange, filters } = props;
 
   const usernames = uniq(auditData.map((d) => d.user.username));
-  const assignedProjects = uniq(auditData.map((d) => d.assignedProject.name));
-
-  const [usernameValue, setUsernameValue] = useState<string[]>([]);
-  const [assignedProjectValue, setAssignedProjectValue] = useState<string[]>(
-    []
+  const assignedProjects = useMemo(
+    () => [
+      {
+        label: "(no project)",
+        id: null,
+      },
+      ...uniqBy(
+        auditData
+          .filter((x) => x.assignedProject)
+          .map((d) => ({
+            label: d.assignedProject.name,
+            id: d.assignedProject.id,
+          })),
+        (x) => x.id
+      ),
+    ],
+    [auditData]
   );
-  const [assignedProjectEmptyValue, setAssignedProjectEmptyValue] =
-    useState<string>(null);
 
-  useEffect(() => {
-    returnFilteredData();
-  }, [usernameValue, assignedProjectValue, assignedProjectEmptyValue]);
-
-  const returnFilteredData = () => {
-    onAuditDataUpdate(
-      auditData.filter(
-        (d) =>
-          usernameValue.includes(d.user.username) ||
-          assignedProjectValue.includes(d.assignedProject.name) ||
-          (assignedProjectEmptyValue &&
-            (assignedProjectEmptyValue === "empty"
-              ? d.assignedProject.name === ""
-              : assignedProjectEmptyValue === "notempty"
-              ? d.assignedProject.name !== ""
-              : false))
-      )
-    );
-  };
+  // useEffect(() => {
+  //   onAuditDataUpdate(
+  //
+  //   );
+  // }, [usernameValue, assignedProjectValue]);
 
   return (
     <Grid container alignItems={"center"} justifyContent={"end"}>
@@ -61,9 +54,9 @@ const AuditDataFilters = (props: AuditDataFiltersComponentProps) => {
           getOptionLabel={(option) => option}
           filterSelectedOptions
           onChange={(e, values) => {
-            setUsernameValue(values);
+            onFiltersChange({ ...filters, username: values });
           }}
-          value={usernameValue}
+          value={filters.username}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -78,12 +71,23 @@ const AuditDataFilters = (props: AuditDataFiltersComponentProps) => {
           multiple
           id="tags-outlined"
           options={assignedProjects}
-          getOptionLabel={(option) => option}
+          getOptionLabel={(option) => option.label}
           filterSelectedOptions
           onChange={(e, values) => {
-            setAssignedProjectValue(values);
+            if (values[values.length - 1]?.id === null) {
+              onFiltersChange({ ...filters, projects: [null] });
+            } else {
+              onFiltersChange({
+                ...filters,
+                projects: values
+                  .filter((x) => x.id !== null)
+                  .map((x) => x.id.toString()),
+              });
+            }
           }}
-          value={assignedProjectValue}
+          value={assignedProjects.filter((x) =>
+            filters.projects.includes(x.id && x.id.toString())
+          )}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -92,30 +96,6 @@ const AuditDataFilters = (props: AuditDataFiltersComponentProps) => {
             />
           )}
         />
-      </Grid>
-      <Grid item style={{ width: "300px" }} margin={2}>
-        <FormControl fullWidth>
-          <InputLabel id="demo-simple-select-label">
-            Select for empty assign project
-          </InputLabel>
-
-          <Select
-            style={{ width: "300px" }}
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={assignedProjectEmptyValue}
-            label="Select for empty assign project"
-            onChange={(e) => {
-              console.log(e.target.value);
-
-              setAssignedProjectEmptyValue(e.target.value);
-            }}
-          >
-            <MenuItem value={"empty"}>Empty</MenuItem>
-            <MenuItem value={"notempty"}>Not Empty</MenuItem>
-            <MenuItem value={"all"}>ALL</MenuItem>
-          </Select>
-        </FormControl>
       </Grid>
     </Grid>
   );

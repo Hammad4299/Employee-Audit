@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { AuditDataFilters } from "../audit/page";
 import { AuditService as AuditServiceClass } from "../Services";
 import { useQuery } from "@tanstack/react-query";
 import { IssueDetail, Project } from "../DomainModals";
