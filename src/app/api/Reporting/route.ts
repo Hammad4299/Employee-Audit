@@ -26,7 +26,7 @@ export const GET = async (request: NextRequest) => {
 
   const projects = await getAllProjects();
 
-  let reportingEntries: Array<TimeEntry> = [];
+  let reportingEntries: Array<TimeEntry & { assignedIssueKey: string }> = [];
   for (let workspace of workspaces) {
     const togglProjects = await toggleServiceInstance.getAllProject(
       workspace.toggleId.toString()
@@ -88,7 +88,7 @@ export const GET = async (request: NextRequest) => {
   });
 
   // if the project in alias of project then linked issue key then extract no
-  reportingEntries = reportingEntries.flatMap((data: TimeEntry) => {
+  reportingEntries = reportingEntries.flatMap((data) => {
     //check double entry
     const multipleExpression = new RegExp("[A-Z]+[\\-\\s\\:]\\d+", "i");
     // let fullDescription = "fix: [ud:3976] and fix: [ud:3975]".toUpperCase();
@@ -142,7 +142,7 @@ export const GET = async (request: NextRequest) => {
     }
 
     const timePerSlot = data.timeEntry.seconds / detectedIssueKeys.length;
-    let divideIssueEntries: TimeEntry[] = [];
+    let divideIssueEntries: (TimeEntry & { assignedIssueKey: string })[] = [];
     range(0, issueMatches.length).flatMap((x) => {
       divideIssueEntries.push({
         ...data,

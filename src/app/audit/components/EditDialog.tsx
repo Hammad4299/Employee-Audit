@@ -23,8 +23,8 @@ interface EditDialogProps {
 const EditDialog = (props: EditDialogProps) => {
   const { open, onClose, issueDetails, projects } = props;
 
-  const { updateIssueDetails } = useUpdateIssueDetails();
-  const { updateProjects } = useUpdateProjects();
+  const { updateIssue: updateIssueDetails } = useUpdateIssueDetails();
+  const { updateProject: updateProjects } = useUpdateProjects();
 
   const [projectData, setProjectData] = useState<Partial<Project>>(
     projects

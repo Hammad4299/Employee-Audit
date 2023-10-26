@@ -6,6 +6,7 @@ export interface User {
 }
 
 export interface TimeEntry {
+  id?: string;
   user: User;
   description: string;
   project: Project;
@@ -20,7 +21,7 @@ export interface TimeEntry {
     stop: string;
     at: string;
   };
-  assignedIssueKey?: string;
+
   assignedProject?: {
     id: number;
     name: string;

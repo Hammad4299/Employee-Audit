@@ -14,17 +14,26 @@ import dayjs, { Dayjs } from "dayjs";
 import type { Workspace } from "@/app/DomainModals";
 import { AuditDataFilters } from "@/app/audit/page";
 
+declare var window: any;
+
 const useStyles = makeStyles({
   root: {},
 });
 
 interface AuditFiltersComponentProps {
   workspaces: Workspace[];
-  refetchAuditData: (filters: AuditDataFilters) => void;
+  filters: AuditDataFilters;
+  onFiltersChange: (filters: AuditDataFilters) => void;
+  onRefetch: () => void;
 }
 
 const AuditFilters = (props: AuditFiltersComponentProps) => {
-  const { workspaces, refetchAuditData } = props;
+  const {
+    workspaces,
+    filters: auditFilterParams,
+    onFiltersChange: setAuditFilterParams,
+    onRefetch: refetchAuditData,
+  } = props;
   const classes = useStyles();
 
   const [dateRangeStartingValue, setDateRangeStartingValue] =
@@ -33,14 +42,6 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
   const localStorageFilters = JSON.parse(
     window.localStorage.getItem("auditFilters") as string
   ) as AuditDataFilters;
-
-  const [auditFilterParams, setAuditFilterParams] = useState<AuditDataFilters>({
-    dateRange: {
-      startDate: "",
-      endDate: "",
-    },
-    workspaces: [],
-  });
 
   useEffect(() => {
     if (localStorageFilters) {
@@ -97,7 +98,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 ? dayjs(auditFilterParams.dateRange.startDate)
                 : null
             }
-            onChange={(newValue) => {
+            onChange={(newValue: any) => {
               setDateRangeStartingValue(newValue);
               setAuditFilterParams({
                 ...auditFilterParams,
@@ -107,7 +108,9 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 },
               });
             }}
-            renderInput={(params) => <TextField {...params} />}
+            {...({
+              renderInput: (params) => <TextField {...params} />,
+            } as any)}
           />
         </LocalizationProvider>
       </Grid>
@@ -120,7 +123,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 ? dayjs(auditFilterParams.dateRange.endDate)
                 : null
             }
-            onChange={(newValue) => {
+            onChange={(newValue: any) => {
               setDateRangeStartingValue(newValue);
               setAuditFilterParams({
                 ...auditFilterParams,
@@ -130,7 +133,9 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
                 },
               });
             }}
-            renderInput={(params) => <TextField {...params} />}
+            {...({
+              renderInput: (params) => <TextField {...params} />,
+            } as any)}
           />
         </LocalizationProvider>
       </Grid>
@@ -143,7 +148,7 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
               "auditFilters",
               JSON.stringify(auditFilterParams)
             );
-            refetchAuditData(auditFilterParams);
+            refetchAuditData();
           }}
         >
           Refetch Audit Data

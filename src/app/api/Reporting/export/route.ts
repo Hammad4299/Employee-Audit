@@ -1,6 +1,6 @@
 import { TimeEntry } from "@/app/DomainModals/Reports";
 import childProcess from "child_process";
-import { groupBy, keyBy, orderBy, range, sum, uniq } from "lodash";
+import { groupBy, keyBy, orderBy, range, sum, uniq, uniqBy } from "lodash";
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import moment from "moment";
@@ -74,33 +74,37 @@ export const POST = async (request: NextRequest) => {
   Object.keys(reportDataByProject).map((x) => {
     const projectData = reportDataByProject[x];
     const projectUserData = groupBy(projectData, (x) => x.user.username);
-    const issueKeys = uniq(
+    const issueKeys = uniqBy(
       projectData.map((x) => {
-        x.assignedIssueKey = x.assignedIssueId
-          ? issueMap[x.assignedIssueId].issueKey
-          : "";
-        return x.assignedIssueKey;
-      })
+        return (
+          issueMap[x.assignedIssueId] || {
+            id: null,
+            issueKey: "(unassigned)",
+            description: "(unassigned)",
+          }
+        );
+      }),
+      (x) => x.id
     );
     console.log(`🚀 ~ Object.keys ~ issueKeys:`, issueKeys);
     const users = Object.keys(projectUserData);
     let personSums: number[] = [...users.map((x) => 0)];
-    let result: string[][] = [["Issue", ...users, "Total"]];
+    let result: (string | number)[][] = [["Issue", ...users, "Total"]];
     issueKeys.map((issueKey) => {
       let issueTotal = 0;
-      const row: string[] = [issueKey];
+      const row: (string | number)[] = [issueKey.issueKey];
       const remainderColumns = users.map((user, index) => {
         const userData = (projectUserData[user] || []).filter(
-          (x) => x.assignedIssueKey === issueKey
+          (x) => x.assignedIssueId === issueKey.id
         );
         const total = userData.length
           ? sum(userData.map((x) => x.timeEntry.seconds / (60 * 60)))
           : 0;
         personSums[index] += total;
         issueTotal += total;
-        return total.toFixed(2);
+        return Number(total.toFixed(2));
       });
-      row.push(...remainderColumns, issueTotal.toFixed(2));
+      row.push(...remainderColumns, Number(issueTotal.toFixed(2)));
       result.push(row);
     });
 
@@ -110,8 +114,8 @@ export const POST = async (request: NextRequest) => {
     });
     sheet.addRow([
       "Total",
-      ...personSums.map((x) => x.toFixed(2)),
-      sum(personSums).toFixed(2),
+      ...personSums.map((x) => Number(x.toFixed(2))),
+      Number(sum(personSums).toFixed(2)),
     ]);
   });
   const filePath = `${config.getAbsolutePath(

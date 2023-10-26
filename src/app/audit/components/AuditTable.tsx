@@ -1,27 +1,26 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import TableContainer from "@mui/material/TableContainer";
-import Paper from "@mui/material/Paper";
-import { Button, Grid } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { IssueDetail, Project } from "@/app/DomainModals";
+import { TimeEntry } from "@/app/DomainModals/Reports";
 import {
+  useCreateIssueDetails,
   useCreateProjects,
   useIssueDetails,
   useProjects,
-  useUpdateIssueDetails,
-  useUpdateProjects,
-  useCreateIssueDetails,
 } from "@/app/Hooks/AuditHooks";
-import { IssueDetail, Project } from "@/app/DomainModals";
-import { TimeEntry } from "@/app/DomainModals/Reports";
 import { AuditService } from "@/app/Services";
+import { Button, Grid } from "@mui/material";
+import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
+import { makeStyles } from "@mui/styles";
+import React, { useMemo, useState } from "react";
 
 import Box from "@mui/material/Box";
 import {
   DataGrid,
   GridCellEditStopParams,
   GridColDef,
+  GridRowId,
   GridToolbar,
 } from "@mui/x-data-grid";
 import AuditBulkEditFields from "./AuditBulkEditFields";
@@ -70,18 +69,17 @@ const AuditTable = (props: AuditTableComponentProps) => {
 
   const { auditData, onUpdateAuditData } = props;
 
-  console.log("auditDataFromProps", auditData);
-  const { refetch: refetchIssueDetails } = useIssueDetails();
-  const { refetch: refetchProjects } = useProjects();
-  const { createProjects } = useCreateProjects();
-  const { updateProjects } = useUpdateProjects();
-  const { updateIssueDetails } = useUpdateIssueDetails();
-  const { createIssueDetails } = useCreateIssueDetails();
+  const { issues: issueDetails } = useIssueDetails();
+
+  const { projects, refetch: refetchProjects } = useProjects();
+  const { createProject } = useCreateProjects();
+
+  const { createIssue } = useCreateIssueDetails();
   const [filters, setFilters] = useState<LocalFilters>({
     projects: [],
     username: [],
   });
-  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [selectedRowIds, setSelectedRowIds] = useState<GridRowId[]>([]);
   const headCells: GridColDef[] = [
     {
       field: "id",
@@ -132,7 +130,7 @@ const AuditTable = (props: AuditTableComponentProps) => {
       editable: true,
     },
     {
-      field: "assignedIssue",
+      field: "assignedIssueId",
       headerName: HeaderNames["Assigned Issue"],
       width: 150,
       editable: true,
@@ -141,51 +139,18 @@ const AuditTable = (props: AuditTableComponentProps) => {
 
   const getAuditDataOnTableMaping = (data: TimeEntry) => {
     return {
-      id: String(data?.timeEntry?.seconds + data?.timeEntry?.start),
+      id: data?.id,
       description: data?.description,
       duration: (data?.timeEntry.seconds / 3600).toFixed(2),
       startDate: data?.timeEntry.start,
       endDate: data?.timeEntry.stop,
       project: data?.project ? data?.project.name : null,
       user: data?.user ? data?.user.username : null,
-      assignedProject: data?.assignedProject
-        ? data?.assignedProject.name
-        : null,
-      assignedIssue:
-        data?.assignedIssueKey === undefined ? null : data?.assignedIssueKey,
+      assignedProject: projects.find((x) => x.id === data?.assignedProject?.id)
+        ?.name,
+      assignedIssueId: issueDetails.find((x) => x.id === data?.assignedIssueId)
+        ?.issueKey,
     };
-  };
-
-  const getTableDataOnAuditDataMapping = (
-    editedRow: AuditTableRow,
-    key,
-    value
-  ) => {
-    return auditData.map((x) => {
-      if (
-        x.assignedIssueKey == editedRow.assignedIssue &&
-        x.assignedProject?.name == editedRow.assignedProject &&
-        x.description == editedRow.description &&
-        (x.timeEntry.seconds / 3600).toFixed(2) == editedRow.duration &&
-        x.project.name == editedRow.project &&
-        x.user.username == editedRow.user &&
-        x.timeEntry.start == editedRow.startDate &&
-        x.timeEntry.stop == editedRow.endDate
-      ) {
-        if (key === "assignedProject") {
-          return {
-            ...x,
-            assignedProject: { ...x.assignedProject, name: value },
-          };
-        } else {
-          return {
-            ...x,
-            [key]: value,
-          };
-        }
-      }
-      return x;
-    });
   };
 
   const rows = useMemo(() => {
@@ -199,135 +164,61 @@ const AuditTable = (props: AuditTableComponentProps) => {
             filters.projects.includes(d.assignedProject?.id?.toString()))
       )
       .map(getAuditDataOnTableMaping);
-  }, [auditData, filters]);
+  }, [auditData, filters, issueDetails, projects]);
 
   const tableCellEditHandler = async (
     changedCellValue: string,
-    headerName: string,
+    headerName: keyof TimeEntry,
     editedRow: any
   ) => {
     // handling project create update
-    if (headerName === HeaderNames["Assigned Project"]) {
-      const response = await createOrUpdateProjects(changedCellValue);
-
-      onUpdateAuditData(
-        getTableDataOnAuditDataMapping(
-          editedRow,
-          "assignedProject",
-          changedCellValue
-        )
-      );
+    if (headerName === "assignedProject") {
+      await handleBulkCreateUpdate(null, changedCellValue, [editedRow.id]);
     }
-    // handling Issue create update
-    if (headerName === HeaderNames["Assigned Issue"]) {
-      const response = await createOrUpdateIssueDetails(changedCellValue);
-
-      onUpdateAuditData(
-        getTableDataOnAuditDataMapping(
-          editedRow,
-          "assignedIssueKey",
-          changedCellValue
-        )
-      );
-    }
-    // handling issue Description update
-    if (headerName === HeaderNames["Description"]) {
-      const allCurrentIssueDetails = await refetchIssueDetails();
-      const changedRow = auditData.find(
-        (x) =>
-          x.assignedIssueKey == editedRow.assignedIssue &&
-          x.assignedProject?.name == editedRow.assignedProject &&
-          x.description == editedRow.description &&
-          (x.timeEntry.seconds / 3600).toFixed(2) == editedRow.duration &&
-          x.project.name == editedRow.project &&
-          x.user.username == editedRow.user &&
-          x.timeEntry.start == editedRow.startDate &&
-          x.timeEntry.stop == editedRow.endDate
-      );
-      const existing = allCurrentIssueDetails.find((x) => {
-        return x.issueKey === changedRow.assignedIssueKey;
-      });
-      if (existing) {
-        let descriptionResponse = await updateIssueDetails({
-          ...existing,
-          description: changedCellValue,
-        });
-      }
-      onUpdateAuditData(
-        getTableDataOnAuditDataMapping(
-          editedRow,
-          "description",
-          changedCellValue
-        )
-      );
+    if (headerName === "assignedIssueId") {
+      await handleBulkCreateUpdate(changedCellValue, null, [editedRow.id]);
     }
   };
 
-  function rowsSelectionHandler(ids: any[]) {
-    setSelectedRowIds(ids);
-  }
-
   async function createOrUpdateProjects(changedCellValue: string) {
-    let projectResponse;
+    let projectResponse: Project = null;
 
-    const allCurrentProjects = await refetchProjects();
-    const existing = allCurrentProjects.find(
-      (d) => d.name === changedCellValue
+    const existing = projects.find(
+      (d) => d.name.toLowerCase() === changedCellValue.toLowerCase()
     );
 
     if (existing) {
-      projectResponse = await updateProjects({
-        ...existing,
-        name: changedCellValue,
-      });
+      projectResponse = existing;
     } else {
-      projectResponse = await createProjects({ name: changedCellValue });
+      projectResponse = await createProject({ name: changedCellValue });
     }
     return projectResponse;
   }
 
   async function createOrUpdateIssueDetails(changedCellValue: string) {
-    let issueResponse;
+    let issueResponse: IssueDetail;
 
-    const allCurrentIssueDetails = await refetchIssueDetails();
-
-    const existing = allCurrentIssueDetails.find(
-      (d) => d.issueKey === changedCellValue
+    const existing = issueDetails.find(
+      (d) => d.issueKey.toLowerCase() === changedCellValue.toLowerCase()
     );
 
     if (existing) {
-      issueResponse = await updateIssueDetails({
-        ...existing,
-        issueKey: changedCellValue,
-      });
+      issueResponse = existing;
     } else {
-      issueResponse = await createIssueDetails({
+      issueResponse = await createIssue({
         issueKey: changedCellValue,
       });
     }
     return issueResponse;
   }
 
-  async function handleBulkCreateUpdate(assignedIssueKey, assignedProjectName) {
-    const filterSelectedRows = rows.filter((r) =>
-      selectedRowIds.includes(r.id)
-    );
-    const filteredRows = auditData.filter((x) =>
-      filterSelectedRows.some(
-        (row) =>
-          x.assignedIssueKey == row.assignedIssue &&
-          x.assignedProject?.name == row.assignedProject &&
-          x.description == row.description &&
-          (x.timeEntry.seconds / 3600).toFixed(2) == row.duration &&
-          x.project.name == row.project &&
-          x.user.username == row.user &&
-          x.timeEntry.start == row.startDate &&
-          x.timeEntry.stop == row.endDate
-      )
-    );
-
-    let projectResponse: Project;
-    let issueResponse: IssueDetail;
+  async function handleBulkCreateUpdate(
+    assignedIssueKey: string,
+    assignedProjectName: string,
+    selectedIds: GridRowId[] = selectedRowIds
+  ) {
+    let projectResponse: Project = null;
+    let issueResponse: IssueDetail = null;
 
     if (assignedProjectName) {
       projectResponse = await createOrUpdateProjects(assignedProjectName);
@@ -335,27 +226,23 @@ const AuditTable = (props: AuditTableComponentProps) => {
     if (assignedIssueKey) {
       issueResponse = await createOrUpdateIssueDetails(assignedIssueKey);
     }
-    for (const row of filteredRows) {
-      onUpdateAuditData(
-        auditData.map((d) => {
-          if (filteredRows.includes(d)) {
-            return {
-              ...d,
-              assignedIssueKey: issueResponse
-                ? issueResponse?.issueKey
-                : d.assignedIssueKey,
-              assignedProject: projectResponse
-                ? {
-                    ...d.assignedProject,
-                    name: projectResponse?.name,
-                  }
-                : d.assignedProject,
-            };
-          }
-          return d;
-        })
-      );
-    }
+
+    onUpdateAuditData(
+      auditData.map((d) => {
+        if (selectedIds.includes(d.id)) {
+          return {
+            ...d,
+            assignedIssueId: issueResponse
+              ? issueResponse?.id
+              : d.assignedIssueId,
+            assignedProject: projectResponse
+              ? projectResponse
+              : d.assignedProject,
+          };
+        }
+        return d;
+      })
+    );
   }
 
   return (
@@ -408,7 +295,7 @@ const AuditTable = (props: AuditTableComponentProps) => {
                 rows={rows}
                 columns={headCells}
                 disableRowSelectionOnClick={true}
-                onRowSelectionModelChange={(ids) => rowsSelectionHandler(ids)}
+                onRowSelectionModelChange={(ids) => setSelectedRowIds(ids)}
                 slots={{
                   toolbar: GridToolbar,
                 }}
@@ -419,11 +306,10 @@ const AuditTable = (props: AuditTableComponentProps) => {
                   params: GridCellEditStopParams,
                   event: any
                 ) => {
-                  const { id, ...rest } = params.row;
                   tableCellEditHandler(
                     event.target.value,
-                    params.colDef.headerName,
-                    rest
+                    params.colDef.field as keyof TimeEntry,
+                    params.row
                   );
                 }}
               />

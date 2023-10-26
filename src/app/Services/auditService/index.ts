@@ -1,5 +1,6 @@
 import { IssueDetail, Project, Workspace } from "@/app/DomainModals";
 import { TimeEntry } from "@/app/DomainModals/Reports";
+import { AuditDataFilters } from "@/app/audit/page";
 import { axiosInstance } from "@/app/utilities/axios";
 
 export class AuditService {
