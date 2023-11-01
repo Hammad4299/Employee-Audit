@@ -21,8 +21,8 @@ export const CreatableSelectComponent = (
 ) => {
   const { options, value, onChange, mode } = props;
 
-  const { createIssueDetails } = useCreateIssueDetails();
-  const { createProjects } = useCreateProjects();
+  const { createIssue: createIssueDetails } = useCreateIssueDetails();
+  const { createProject: createProjects } = useCreateProjects();
 
   const [isLoading, setIsLoading] = useState(false);
 

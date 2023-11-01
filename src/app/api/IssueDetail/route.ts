@@ -3,7 +3,7 @@ import * as issueDetailRepo from "@/app/Repositories/IssueDetail";
 
 export const GET = async (request: Request) => {
   const resp = await issueDetailRepo.getAllIssueDetails();
-  return resp ? NextResponse.json(resp) : [];
+  return resp ? NextResponse.json(resp) : null;
 };
 
 export const POST = async (request: Request) => {

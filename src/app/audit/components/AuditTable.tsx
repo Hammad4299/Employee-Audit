@@ -91,7 +91,7 @@ const AuditTable = (props: AuditTableComponentProps) => {
       field: "description",
       headerName: HeaderNames.Description,
       width: 300,
-      editable: true,
+      editable: false,
     },
     {
       field: "duration",

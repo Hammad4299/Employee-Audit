@@ -1,6 +1,5 @@
 import initDatabase from "@/app/Database/DB";
 import IssueDetailModal from "@/app/Models/IssueDetailModal";
-import ProjectIssueModal from "@/app/Models/ProjectIssueModal";
 import ProjectModal from "@/app/Models/ProjectModal";
 import WorkspaceModal from "@/app/Models/WorkspaceModal";
 import { NextResponse } from "next/server";
@@ -10,7 +9,6 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   await IssueDetailModal.findOne();
   await ProjectModal.findOne();
-  await ProjectIssueModal.findOne();
   await WorkspaceModal.findOne();
   await initDatabase.sync();
   return NextResponse.next();

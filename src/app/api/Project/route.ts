@@ -3,7 +3,7 @@ import * as projectRepo from "@/app/Repositories/Project";
 
 export const GET = async (request: Request) => {
   const resp = await projectRepo.getAllProjects();
-  return resp ? NextResponse.json(resp) : [];
+  return resp ? NextResponse.json(resp) : null;
 };
 
 export const POST = async (request: Request) => {

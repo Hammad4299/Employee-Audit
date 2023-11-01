@@ -14,8 +14,6 @@ import dayjs, { Dayjs } from "dayjs";
 import type { Workspace } from "@/app/DomainModals";
 import { AuditDataFilters } from "@/app/audit/page";
 
-declare var window: any;
-
 const useStyles = makeStyles({
   root: {},
 });
@@ -39,9 +37,13 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
   const [dateRangeStartingValue, setDateRangeStartingValue] =
     React.useState<Dayjs | null>(null);
 
-  const localStorageFilters = JSON.parse(
-    window.localStorage.getItem("auditFilters") as string
-  ) as AuditDataFilters;
+  let localStorageFilters: AuditDataFilters;
+
+  if (typeof window !== "undefined") {
+    localStorageFilters = JSON.parse(
+      window.localStorage.getItem("auditFilters") as string
+    ) as AuditDataFilters;
+  }
 
   useEffect(() => {
     if (localStorageFilters) {
@@ -144,10 +146,12 @@ const AuditFilters = (props: AuditFiltersComponentProps) => {
           variant="contained"
           disabled={isButtonDisabled}
           onClick={() => {
-            window.localStorage.setItem(
-              "auditFilters",
-              JSON.stringify(auditFilterParams)
-            );
+            if (typeof window !== "undefined") {
+              window.localStorage.setItem(
+                "auditFilters",
+                JSON.stringify(auditFilterParams)
+              );
+            }
             refetchAuditData();
           }}
         >
