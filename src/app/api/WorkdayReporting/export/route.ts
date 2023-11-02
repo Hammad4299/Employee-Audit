@@ -107,7 +107,7 @@ export const POST = async (request: NextRequest) => {
 
     // console.log("step5", JSON.stringify(modifySheetData));
 
-    const sheet = workbook.addWorksheet(workspace.owner);
+    const sheet = workbook.addWorksheet(workspace.owner.slice(0, 30));
 
     // sheet.columns?.map(column => column.width = 30)
     // sheet.eachRow((row, number)=> {
