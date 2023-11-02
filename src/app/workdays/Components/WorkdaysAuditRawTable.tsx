@@ -29,6 +29,7 @@ import {
 import { useWorkspaces } from "@/app/Hooks/AuditHooks";
 import { Workspace } from "@/app/DomainModals";
 import { AuditService } from "@/app/Services";
+import WorkspacesSelectDialog from "./WorkspacesSelectDialog";
 
 dayjs.extend(weekday);
 
@@ -41,12 +42,6 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
   const classes = useStyles();
 
   const { workspaces } = useWorkspaces();
-  let workspacesFromLocalStorage: Workspace[];
-  if (typeof window !== "undefined") {
-    workspacesFromLocalStorage = JSON.parse(
-      window && window.localStorage.getItem("workspaces")
-    );
-  }
 
   const [rawWorkdaysInputs, setRawWorkdaysInputs] = useState<RawWorkdaysInputs>(
     {
@@ -60,9 +55,10 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
       },
     }
   );
-  const [workspacesValues, setWorkspacesValues] = useState<Workspace[]>(
-    workspacesFromLocalStorage || []
-  );
+  const [workspacesValues, setWorkspacesValues] = useState<Workspace[]>([]);
+
+  const [showAddWorkspaceDialog, setShowAddWorkspaceDialog] =
+    useState<boolean>(false);
 
   const allDatesBetweenRange: string[] = useMemo((): string[] => {
     const endDate = rawWorkdaysInputs?.dateRange?.endDate;
@@ -228,7 +224,15 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
         display={"flex"}
         justifyContent={"flex-end"}
       >
-        <Grid item xs={2} textAlign={"center"}>
+        <Grid item xs={2} textAlign={"right"}>
+          <Button
+            variant="contained"
+            onClick={() => setShowAddWorkspaceDialog(true)}
+          >
+            show workspaces
+          </Button>
+        </Grid>
+        <Grid item xs={2} textAlign={"right"}>
           <Button
             variant="contained"
             disabled={rawData.length && workspacesValues.length ? false : true}
@@ -246,34 +250,10 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
                 );
             }}
           >
-            {workspacesValues.length ? "GENERATE REPORT" : "SELECT WORKSPACE"}
+            {workspacesValues.length
+              ? "GENERATE REPORT"
+              : "SELECT WORKSPACE FIRST"}
           </Button>
-        </Grid>
-        <Grid item xs={3} textAlign={"end"}>
-          <Autocomplete
-            multiple
-            id="tags-outlined"
-            options={workspaces || []}
-            getOptionLabel={(option) => option.owner}
-            filterSelectedOptions
-            onChange={(e, values) => {
-              setWorkspacesValues(values);
-              if (typeof window !== "undefined") {
-                window.localStorage.setItem(
-                  "workspaces",
-                  JSON.stringify(values)
-                );
-              }
-            }}
-            value={workspacesValues}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Workspaces"
-                placeholder="workspaces"
-              />
-            )}
-          />
         </Grid>
       </Grid>
       <Grid item xs={12}>
@@ -307,6 +287,16 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
           </Box>
         </TableContainer>
       </Grid>
+      {showAddWorkspaceDialog && (
+        <WorkspacesSelectDialog
+          workspaces={workspaces || []}
+          onClose={() => setShowAddWorkspaceDialog(false)}
+          onSave={(workspaces) => {
+            setWorkspacesValues(workspaces);
+            setShowAddWorkspaceDialog(false);
+          }}
+        />
+      )}
     </Grid>
   );
 };
