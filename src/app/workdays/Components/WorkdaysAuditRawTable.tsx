@@ -5,6 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Grid,
   Paper,
   TableContainer,
@@ -59,6 +60,11 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
 
   const [showAddWorkspaceDialog, setShowAddWorkspaceDialog] =
     useState<boolean>(false);
+  const [isFileGenerated, setIsFileGenerated] = useState<boolean>(false);
+  console.log(
+    "🚀 ~ file: WorkdaysAuditRawTable.tsx:64 ~ WorkdaysAuditRawTable ~ isFileGenerated:",
+    isFileGenerated
+  );
 
   const allDatesBetweenRange: string[] = useMemo((): string[] => {
     const endDate = rawWorkdaysInputs?.dateRange?.endDate;
@@ -237,6 +243,7 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
             variant="contained"
             disabled={rawData.length && workspacesValues.length ? false : true}
             onClick={() => {
+              setIsFileGenerated(true);
               const service = new AuditService();
               service
                 .generateWorkdaysExcel({
@@ -244,10 +251,14 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
                   rawData: rawData,
                   workspaces: workspacesValues,
                 })
-                .catch((err) => alert("error"))
-                .then((x) =>
-                  alert("A file directory should have opened with excel file")
-                );
+                .catch((err) => {
+                  setIsFileGenerated(false);
+                  alert("error");
+                })
+                .then((x) => {
+                  setIsFileGenerated(false);
+                  alert("A file directory should have opened with excel file");
+                });
             }}
           >
             {workspacesValues.length
@@ -294,6 +305,15 @@ const WorkdaysAuditRawTable = (props: WorkdaysAuditRawTableProps) => {
           onSave={(workspaces) => {
             setWorkspacesValues(workspaces);
             setShowAddWorkspaceDialog(false);
+          }}
+        />
+      )}
+      {isFileGenerated && (
+        <CircularProgress
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
           }}
         />
       )}

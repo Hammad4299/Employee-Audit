@@ -107,12 +107,9 @@ export const POST = async (request: NextRequest) => {
 
     // console.log("step5", JSON.stringify(modifySheetData));
 
-    const sheet = workbook.addWorksheet(workspace.owner.slice(0, 30));
-
-    // sheet.columns?.map(column => column.width = 30)
-    // sheet.eachRow((row, number)=> {
-    //   row.
-    // })
+    const sheet = workbook.addWorksheet(
+      workspace.owner.replace(/workspace|'s/g, "")
+    );
 
     const workdaySheetData = [
       [
@@ -126,13 +123,6 @@ export const POST = async (request: NextRequest) => {
         "Half day leave",
         "",
         "",
-        "Total half day leaves",
-        "Total full day leaves",
-        "Total hours done",
-        "Working days remaining",
-        "Working hours remaining",
-        "Overtime",
-        "Month",
       ],
       ...modifySheetData.map((x) => [...Object.values(x), "", ""]),
     ];
@@ -150,18 +140,28 @@ export const POST = async (request: NextRequest) => {
         formula: `=AND(D${i + 2},NOT(G${i + 2}),C${i + 2}<E${i + 2})`,
       };
     }
-    // adding formulas for total information audit
-    sheet.getCell(`K2`).value = { formula: `=COUNTIF(H:H,TRUE)` };
+    // adding column and formulas for total audit information
+    sheet.getCell(`K1`).value = "Total half day leaves";
+    sheet.getCell(`K2`).value = "Total full day leaves";
+    sheet.getCell(`K3`).value = "Total hours done";
+    sheet.getCell(`K4`).value = "Working days remaining";
+    sheet.getCell(`K5`).value = "Working hours remaining";
+    sheet.getCell(`K6`).value = "Overtime";
+    sheet.getCell(`K7`).value = "Month";
+
+    sheet.getCell(`L1`).value = { formula: `=COUNTIF(H:H,TRUE)` };
     sheet.getCell(`L2`).value = { formula: `=COUNTIF(G:G,TRUE)` };
-    sheet.getCell(`M2`).value = { formula: `=SUM(C:C)` };
-    sheet.getCell(`N2`).value = {
+    sheet.getCell(`L3`).value = { formula: `=SUM(C:C)` };
+    sheet.getCell(`L4`).value = {
       formula: `=COUNTIF(D:D,TRUE)-COUNTIF(G:G,TRUE)-(COUNTIF(H:H,TRUE)*0.5)`,
     };
-    sheet.getCell(`O2`).value = { formula: `=N2*8` };
-    // sheet.getCell(`P2`).value = { formula: `=CEILING.MATH(60*(M2-O2))/60` };
-    sheet.getCell('P2').value = { formula: '=CEILING(60*(M2-O2)/60, 1)' };
-    // sheet.getCell('P2').value = { formula: '=CEILING.MATH(60*(M2-O2)/60, 1)' };
-    sheet.getCell(`Q2`).value = `${dayjs(dateRange.startDate).format("MMM-YY")}`;
+    sheet.getCell(`L5`).value = { formula: `=L4*8` };
+    // sheet.getCell(`L6`).value = { formula: `=CEILING.MATH(60*(L3-L5))/60` };
+    sheet.getCell(`L6`).value = { formula: "=CEILING(60*(L3-L5)/60, 1)" };
+    // sheet.getCell('L6').value = { formula: '=CEILING.MATH(60*(L3-L5)/60, 1)' };
+    sheet.getCell(`L7`).value = `${dayjs(dateRange.startDate).format(
+      "MMM-YY"
+    )}`;
   }
 
   const filePath = `${config.getAbsolutePath(
