@@ -1,0 +1,17 @@
+**/node_modules/*
+**/.git/*
+**/.vscode/*
+**/.env.local
+**/.env.local/example
+**/Dockerfile
+**/storage
+**/workdaysStorage
+**/.prettierrc
+**/.env.example
+**/docker-compose*.yml
+**/.gitignore
+**/.next
+**/.editorconfig
+**/.dockerignore
+**/.eslintrc.json
+**/*.md

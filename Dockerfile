@@ -1,0 +1,31 @@
+#build image
+FROM node:16-alpine as build
+
+#initializing app directory
+WORKDIR /app
+RUN chown -R node /app
+COPY --chown=node ["./package.json","./yarn.lock", "./"]
+USER node
+ENV NODE_ENV production
+RUN yarn install
+
+#creating project build
+COPY --chown=node ["./tsconfig*.json", "./next.config.js", "./db.sqlite", "./init-db.sql", "./"]
+COPY --chown=node ["./public", "./public"]
+COPY --chown=node ["./src", "./src"]
+RUN yarn run build \
+    && yarn install
+
+#creating actual image of the created build
+FROM node:16-alpine
+WORKDIR /app
+RUN chown -R node /app
+COPY --chown=node --from=build ["/app/db.sqlite", "/app/package.json","/app/yarn.lock", "./"]
+COPY --chown=node --from=build ["/app/.next", "./.next"]
+COPY --chown=node --from=build ["/app/node_modules","/app/node_modules"]
+USER node
+ENV NODE_ENV production
+ENV PROJECT_ROOT /app
+ENV DATABASE_URL /app/db.sqlite
+EXPOSE 3000
+CMD yarn run start
