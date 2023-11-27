@@ -19,11 +19,47 @@ export const POST = async (request: NextRequest) => {
   const data: WorkDaysExcelReportRawData = await request.json();
 
   const { workspaces, rawData, dateRange } = data;
-
+  
   const workbook = new ExcelJS.Workbook();
   const toggleServiceInstance = new ToggleService(config.toggl.apiToken || "");
 
-  for (const workspace of workspaces) {
+  const employeesOrderArray: string[] = [
+    "Anas's workspace",
+    "Farhanulhaq's workspace",
+    "Saadwaseem's workspace",
+    "Shafkatullah's workspace",
+    "Nabeelshaikh's workspace",
+    "Inzamamasghar's workspace",
+    "Shahzad Sheikh's workspace",
+    "Muhammad Furqan Ul Haq's workspace",
+    "Abdulwasay's workspace",
+    "Saadraza's workspace",
+    "Umairhaneef's workspace",
+    "Hassantariq's workspace",
+    "Aun Rizvi's workspace",
+    "Ahsan Bilal's workspace",
+    "Hasnan Ahmed's workspace",
+    "Faisal Ikram's workspace",
+    "Ahmer Adnan Malik's workspace",
+    "Ahmad Attique's workspace",
+    "Taha Siddiqui's workspace",
+    "abdul.rafay's workspace",
+    "ikram.rasheed's workspace",
+    "wasiq.bin.zahid's workspace",
+  ];
+
+  const sortedWorkspace = workspaces.sort((a, b) => {
+    const aIndex = employeesOrderArray.indexOf(a.owner);
+    const bIndex = employeesOrderArray.indexOf(b.owner);
+
+    // If an owner is not found, move it to the end
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+
+    return aIndex - bIndex;
+  });
+
+  for (const workspace of sortedWorkspace) {
     // console.log("dateeessss", dateRange);
 
     let timeEntriesData: TimeEntriesData[];
