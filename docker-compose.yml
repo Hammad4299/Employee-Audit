@@ -2,15 +2,24 @@ version: '3'
 
 services:
   employee-audit:
+    restart: always
     image: 415579337695.dkr.ecr.us-east-2.amazonaws.com/employee-audit
     labels:
-      - "traefik.http.routers.employee-audit.rule=Host(`ea.teraception.com`)"
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.employee-audit-http.rule=Host(`ea.teraception.com`)"
+      - "traefik.http.routers.employee-audit-http.entrypoints=web"
+      - "traefik.http.routers.employee-audit-http.middlewares=redirect"
+      - "traefik.http.routers.employee-audit-https.rule=Host(`ea.teraception.com`)"
+      - "traefik.http.routers.employee-audit-https.entrypoints=websecure"
+      - "traefik.http.routers.employee-audit-https.tls=true"
+      - "traefik.http.routers.employee-audit-https.tls.certresolver=myresolver"
       - "traefik.http.routers.employee-audit.service=employee-audit"
-      - "traefik.http.routers.employee-audit.tls=true"
       - "traefik.http.services.employee-audit.loadbalancer.server.port=3000"
     env_file:
       - .env.prod
     environment:
       - DATABASE_URL=/app/db
     volumes:
-      - db:/app/db
+      - ./db:/app/db/db.sqlite

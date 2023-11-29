@@ -12,12 +12,7 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: false,
   webpack: (config, options) => {
-    console.log(
-      "entry"
-      // await config.entry(),
-      // options.isServer,
-      // options.nextRuntime
-    );
+    
     if (options.nextRuntime === "nodejs") {
       const oldEntry = config.entry;
       // config.entry = () =>
@@ -43,12 +38,7 @@ const nextConfig = {
       //   })
       // );
     }
-    console.log(
-      "entry after",
-
-      options.isServer,
-      options.nextRuntime
-    );
+    
     return config;
   },
 };
